@@ -3,19 +3,29 @@ import 'dart:convert';
 class ResetSession {
   const ResetSession({
     required this.completedAt,
-    required this.state,
+    required this.stateTitle,
     required this.scenarioTitle,
-    required this.duration,
+    required this.durationMinutes,
     required this.result,
     this.note,
   });
 
   final DateTime completedAt;
-  final String state;
+  final String stateTitle;
   final String scenarioTitle;
-  final String duration;
+  final int durationMinutes;
   final String result;
   final String? note;
+
+  String get state => stateTitle;
+
+  String get duration {
+    if (durationMinutes >= 2 && durationMinutes <= 4) {
+      return '$durationMinutes минуты';
+    }
+
+    return '$durationMinutes минут';
+  }
 
   String get dateKey {
     final month = completedAt.month.toString().padLeft(2, '0');
@@ -27,9 +37,9 @@ class ResetSession {
   String toStorageString() {
     return jsonEncode({
       'completedAt': completedAt.toIso8601String(),
-      'state': state,
+      'stateTitle': stateTitle,
       'scenarioTitle': scenarioTitle,
-      'duration': duration,
+      'durationMinutes': durationMinutes,
       'result': result,
       'note': note,
     });
@@ -40,11 +50,17 @@ class ResetSession {
 
     return ResetSession(
       completedAt: DateTime.parse(json['completedAt']! as String),
-      state: json['state']! as String,
+      stateTitle: (json['stateTitle'] ?? json['state'])! as String,
       scenarioTitle: json['scenarioTitle']! as String,
-      duration: json['duration']! as String,
+      durationMinutes:
+          json['durationMinutes'] as int? ??
+          _parseDurationMinutes(json['duration']! as String),
       result: json['result']! as String,
       note: json['note'] as String?,
     );
+  }
+
+  static int _parseDurationMinutes(String duration) {
+    return int.parse(duration.split(' ').first);
   }
 }

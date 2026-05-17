@@ -32,9 +32,9 @@ class ResetStorageService {
   }) async {
     final session = ResetSession(
       completedAt: completedAt,
-      state: 'Сброс выполнен',
+      stateTitle: 'Сброс выполнен',
       scenarioTitle: 'Reset Button',
-      duration: 'Без таймера',
+      durationMinutes: 3,
       result: 'помогло',
     );
 

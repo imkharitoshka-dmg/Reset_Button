@@ -83,9 +83,9 @@ void main() {
     await storageService.saveResetSession(
       ResetSession(
         completedAt: DateTime(2026, 5, 17, 14, 30),
-        state: 'Тревога',
+        stateTitle: 'Тревога',
         scenarioTitle: 'Дыхание',
-        duration: '5 минут',
+        durationMinutes: 5,
         result: 'частично',
         note: 'Стало легче.',
       ),
@@ -100,5 +100,49 @@ void main() {
     expect(find.text('Состояние: Тревога'), findsOneWidget);
     expect(find.text('Сценарий: Дыхание'), findsOneWidget);
     expect(find.text('Результат: частично'), findsOneWidget);
+  });
+
+  testWidgets('Opens scenario progress screen and shows controls', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const ResetButtonApp());
+    await tester.pump();
+
+    await tester.tap(find.text('Я тревожусь'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Начать').first);
+    await tester.pumpAndSettle();
+
+    expect(find.text('3 минуты заземления'), findsWidgets);
+    expect(find.text('Я тревожусь'), findsOneWidget);
+    expect(find.text('3 минуты'), findsOneWidget);
+    expect(find.text('Почувствуй опору стоп и спины.'), findsOneWidget);
+    expect(find.byType(CheckboxListTile), findsWidgets);
+
+    await tester.tap(find.byType(CheckboxListTile).first);
+    await tester.pump();
+
+    final firstCheckbox = tester.widget<CheckboxListTile>(
+      find.byType(CheckboxListTile).first,
+    );
+    expect(firstCheckbox.value, isTrue);
+
+    expect(find.text('Стало немного легче?'), findsOneWidget);
+    expect(find.text('Да, помогло'), findsOneWidget);
+    expect(find.text('Частично'), findsOneWidget);
+    expect(find.text('Нет'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('Заметка после reset'),
+      100,
+      scrollable: find.byType(Scrollable).last,
+    );
+    expect(find.text('Заметка после reset'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('Завершить'),
+      100,
+      scrollable: find.byType(Scrollable).last,
+    );
+    expect(find.text('Завершить'), findsOneWidget);
   });
 }
