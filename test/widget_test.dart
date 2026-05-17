@@ -65,7 +65,7 @@ void main() {
 
     expect(find.text('История'), findsOneWidget);
     expect(
-      find.text('История пока пустая. Выбери состояние и пройди первый reset.'),
+      find.text('История пока пустая. Выбери состояние и пройди первый сброс.'),
       findsOneWidget,
     );
   });

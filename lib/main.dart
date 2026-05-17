@@ -21,6 +21,15 @@ class ResetButtonApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF2F6F62)),
+        scaffoldBackgroundColor: const Color(0xFFF7F9F6),
+        cardTheme: const CardThemeData(
+          margin: EdgeInsets.zero,
+          elevation: 0,
+          color: Colors.white,
+        ),
+        filledButtonTheme: FilledButtonThemeData(
+          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+        ),
         useMaterial3: true,
       ),
       home: const ResetHomePage(),

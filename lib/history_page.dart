@@ -45,13 +45,13 @@ class _HistoryPageState extends State<HistoryPage> {
                 child: Padding(
                   padding: EdgeInsets.all(24),
                   child: Text(
-                    'История пока пустая. Выбери состояние и пройди первый reset.',
+                    'История пока пустая. Выбери состояние и пройди первый сброс.',
                     textAlign: TextAlign.center,
                   ),
                 ),
               )
             : ListView.separated(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(20),
                 itemCount: _resetSessions.length,
                 separatorBuilder: (context, index) =>
                     const SizedBox(height: 12),
@@ -75,7 +75,7 @@ class HistorySessionCard extends StatelessWidget {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(18),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

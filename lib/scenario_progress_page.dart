@@ -86,7 +86,7 @@ class _ScenarioProgressPageState extends State<ScenarioProgressPage> {
       appBar: AppBar(title: Text(scenario.title)),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(20),
           children: [
             Text(
               scenario.title,
@@ -97,9 +97,17 @@ class _ScenarioProgressPageState extends State<ScenarioProgressPage> {
             const SizedBox(height: 8),
             Text(scenario.stateTitle, style: textTheme.titleMedium),
             const SizedBox(height: 8),
-            Text(formatDurationMinutes(scenario.durationMinutes)),
+            Text(
+              formatDurationMinutes(scenario.durationMinutes),
+              style: textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             const SizedBox(height: 12),
-            Text(scenario.description),
+            Text(
+              scenario.description,
+              style: textTheme.bodyMedium?.copyWith(height: 1.35),
+            ),
             const SizedBox(height: 24),
             for (var index = 0; index < scenario.steps.length; index++)
               CheckboxListTile(
@@ -112,6 +120,7 @@ class _ScenarioProgressPageState extends State<ScenarioProgressPage> {
                 title: Text(scenario.steps[index]),
                 controlAffinity: ListTileControlAffinity.leading,
                 contentPadding: EdgeInsets.zero,
+                visualDensity: VisualDensity.standard,
               ),
             const SizedBox(height: 24),
             Text(
@@ -146,6 +155,9 @@ class _ScenarioProgressPageState extends State<ScenarioProgressPage> {
             const SizedBox(height: 24),
             FilledButton(
               onPressed: _finishScenario,
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
               child: const Text('Завершить'),
             ),
           ],

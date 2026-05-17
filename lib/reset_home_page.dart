@@ -67,7 +67,7 @@ class _ResetHomePageState extends State<ResetHomePage> {
             const SizedBox(height: 8),
             Text(
               'Короткие сценарии, чтобы вернуться в спокойствие и фокус',
-              style: textTheme.bodyLarge,
+              style: textTheme.bodyLarge?.copyWith(height: 1.35),
             ),
             const SizedBox(height: 32),
             Text(
@@ -122,7 +122,7 @@ class _StateSelectionCard extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
           child: Row(
             children: [
               Expanded(
