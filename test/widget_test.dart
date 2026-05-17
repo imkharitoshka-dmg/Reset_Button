@@ -101,6 +101,7 @@ void main() {
     expect(find.text('Состояние: Тревога'), findsOneWidget);
     expect(find.text('Сценарий: Дыхание'), findsOneWidget);
     expect(find.text('Результат: частично'), findsOneWidget);
+    expect(find.text('Заметка: Стало легче.'), findsOneWidget);
   });
 
   testWidgets('Opens scenario progress screen and shows controls', (
@@ -187,7 +188,16 @@ void main() {
     expect(sessions.single.stateTitle, 'Я тревожусь');
     expect(sessions.single.scenarioTitle, '3 минуты заземления');
     expect(sessions.single.durationMinutes, 3);
-    expect(sessions.single.result, 'Частично');
+    expect(sessions.single.result, 'частично');
     expect(sessions.single.note, 'Стало чуть спокойнее.');
+
+    await tester.tap(find.byTooltip('История'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Состояние: Я тревожусь'), findsOneWidget);
+    expect(find.text('Сценарий: 3 минуты заземления'), findsOneWidget);
+    expect(find.text('Длительность: 3 минуты'), findsOneWidget);
+    expect(find.text('Результат: частично'), findsOneWidget);
+    expect(find.text('Заметка: Стало чуть спокойнее.'), findsOneWidget);
   });
 }

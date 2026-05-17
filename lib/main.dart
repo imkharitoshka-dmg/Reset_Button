@@ -287,7 +287,7 @@ class _ScenarioProgressPageState extends State<ScenarioProgressPage> {
         stateTitle: widget.scenario.stateTitle,
         scenarioTitle: widget.scenario.title,
         durationMinutes: widget.scenario.durationMinutes,
-        result: _result,
+        result: _storageResult,
         note: note.isEmpty ? null : note,
       ),
     );
@@ -306,6 +306,15 @@ class _ScenarioProgressPageState extends State<ScenarioProgressPage> {
     setState(() {
       _result = value;
     });
+  }
+
+  String get _storageResult {
+    return switch (_result) {
+      'Да, помогло' => 'помогло',
+      'Частично' => 'частично',
+      'Нет' => 'не помогло',
+      _ => _result,
+    };
   }
 
   @override
