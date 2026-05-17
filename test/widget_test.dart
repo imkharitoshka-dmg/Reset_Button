@@ -82,6 +82,7 @@ void main() {
 
     await storageService.saveResetSession(
       ResetSession(
+        id: 'test-session',
         completedAt: DateTime(2026, 5, 17, 14, 30),
         stateTitle: 'Тревога',
         scenarioTitle: 'Дыхание',
@@ -144,5 +145,49 @@ void main() {
       scrollable: find.byType(Scrollable).last,
     );
     expect(find.text('Завершить'), findsOneWidget);
+  });
+
+  testWidgets('Finishing scenario saves selected result and note', (
+    tester,
+  ) async {
+    const storageService = ResetStorageService();
+
+    await tester.pumpWidget(
+      const MaterialApp(home: ResetHomePage(storageService: storageService)),
+    );
+    await tester.pump();
+
+    await tester.tap(find.text('Я тревожусь'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Начать').first);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Частично'));
+    await tester.pump();
+    await tester.scrollUntilVisible(
+      find.text('Заметка после reset'),
+      100,
+      scrollable: find.byType(Scrollable).last,
+    );
+    await tester.enterText(find.byType(TextField), 'Стало чуть спокойнее.');
+    await tester.scrollUntilVisible(
+      find.text('Завершить'),
+      100,
+      scrollable: find.byType(Scrollable).last,
+    );
+    await tester.tap(find.text('Завершить'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Сессия сохранена'), findsOneWidget);
+
+    final sessions = await storageService.loadResetSessions();
+    expect(sessions, hasLength(1));
+    expect(sessions.single.id, startsWith('anxious-3-'));
+    expect(sessions.single.stateTitle, 'Я тревожусь');
+    expect(sessions.single.scenarioTitle, '3 минуты заземления');
+    expect(sessions.single.durationMinutes, 3);
+    expect(sessions.single.result, 'Частично');
+    expect(sessions.single.note, 'Стало чуть спокойнее.');
   });
 }

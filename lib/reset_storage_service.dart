@@ -31,6 +31,7 @@ class ResetStorageService {
     required DateTime completedAt,
   }) async {
     final session = ResetSession(
+      id: 'reset-button-${completedAt.microsecondsSinceEpoch}',
       completedAt: completedAt,
       stateTitle: 'Сброс выполнен',
       scenarioTitle: 'Reset Button',

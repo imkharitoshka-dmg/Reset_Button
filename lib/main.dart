@@ -278,10 +278,12 @@ class _ScenarioProgressPageState extends State<ScenarioProgressPage> {
 
   Future<void> _finishScenario() async {
     final note = _noteController.text.trim();
+    final completedAt = DateTime.now();
 
     await widget.storageService.saveResetSession(
       ResetSession(
-        completedAt: DateTime.now(),
+        id: '${widget.scenario.id}-${completedAt.microsecondsSinceEpoch}',
+        completedAt: completedAt,
         stateTitle: widget.scenario.stateTitle,
         scenarioTitle: widget.scenario.title,
         durationMinutes: widget.scenario.durationMinutes,
@@ -294,9 +296,10 @@ class _ScenarioProgressPageState extends State<ScenarioProgressPage> {
       return;
     }
 
+    Navigator.of(context).popUntil((route) => route.isFirst);
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(const SnackBar(content: Text('Сессия завершена')));
+      ..showSnackBar(const SnackBar(content: Text('Сессия сохранена')));
   }
 
   void _setResult(String value) {

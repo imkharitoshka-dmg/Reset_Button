@@ -2,6 +2,7 @@ import 'dart:convert';
 
 class ResetSession {
   const ResetSession({
+    required this.id,
     required this.completedAt,
     required this.stateTitle,
     required this.scenarioTitle,
@@ -10,6 +11,7 @@ class ResetSession {
     this.note,
   });
 
+  final String id;
   final DateTime completedAt;
   final String stateTitle;
   final String scenarioTitle;
@@ -36,6 +38,7 @@ class ResetSession {
 
   String toStorageString() {
     return jsonEncode({
+      'id': id,
       'completedAt': completedAt.toIso8601String(),
       'stateTitle': stateTitle,
       'scenarioTitle': scenarioTitle,
@@ -49,6 +52,9 @@ class ResetSession {
     final json = jsonDecode(value) as Map<String, Object?>;
 
     return ResetSession(
+      id:
+          json['id'] as String? ??
+          DateTime.now().microsecondsSinceEpoch.toString(),
       completedAt: DateTime.parse(json['completedAt']! as String),
       stateTitle: (json['stateTitle'] ?? json['state'])! as String,
       scenarioTitle: json['scenarioTitle']! as String,
