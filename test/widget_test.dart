@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:reset_button/main.dart';
@@ -44,5 +45,13 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Отменить'), findsNothing);
+  });
+
+  testWidgets('Shows the current date in Russian', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(home: ResetHomePage(today: DateTime(2026, 5, 17))),
+    );
+
+    expect(find.text('17 мая 2026'), findsOneWidget);
   });
 }

@@ -22,24 +22,38 @@ class ResetButtonApp extends StatelessWidget {
 }
 
 class ResetHomePage extends StatefulWidget {
-  const ResetHomePage({super.key});
+  const ResetHomePage({super.key, this.today});
+
+  final DateTime? today;
 
   @override
   State<ResetHomePage> createState() => _ResetHomePageState();
 }
 
 class _ResetHomePageState extends State<ResetHomePage> {
-  bool _isResetDone = false;
+  String? _resetDateKey;
+
+  DateTime get _today => widget.today ?? DateTime.now();
+
+  String get _todayKey {
+    final today = _today;
+    final month = today.month.toString().padLeft(2, '0');
+    final day = today.day.toString().padLeft(2, '0');
+
+    return '${today.year}-$month-$day';
+  }
+
+  bool get _isResetDone => _resetDateKey == _todayKey;
 
   void _completeReset() {
     setState(() {
-      _isResetDone = true;
+      _resetDateKey = _todayKey;
     });
   }
 
   void _undoReset() {
     setState(() {
-      _isResetDone = false;
+      _resetDateKey = null;
     });
   }
 
@@ -49,6 +63,7 @@ class _ResetHomePageState extends State<ResetHomePage> {
     final statusText = _isResetDone
         ? 'Сброс выполнен. Можно продолжать спокойно.'
         : 'Один простой экран, чтобы начать день заново.';
+    final dateText = formatRussianDate(_today);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Reset Button')),
@@ -65,6 +80,12 @@ class _ResetHomePageState extends State<ResetHomePage> {
                 style: textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                dateText,
+                textAlign: TextAlign.center,
+                style: textTheme.titleMedium,
               ),
               const SizedBox(height: 16),
               Text(
@@ -99,4 +120,23 @@ class _ResetHomePageState extends State<ResetHomePage> {
       ),
     );
   }
+}
+
+String formatRussianDate(DateTime date) {
+  const monthNames = [
+    'января',
+    'февраля',
+    'марта',
+    'апреля',
+    'мая',
+    'июня',
+    'июля',
+    'августа',
+    'сентября',
+    'октября',
+    'ноября',
+    'декабря',
+  ];
+
+  return '${date.day} ${monthNames[date.month - 1]} ${date.year}';
 }
