@@ -21,12 +21,34 @@ class ResetButtonApp extends StatelessWidget {
   }
 }
 
-class ResetHomePage extends StatelessWidget {
+class ResetHomePage extends StatefulWidget {
   const ResetHomePage({super.key});
+
+  @override
+  State<ResetHomePage> createState() => _ResetHomePageState();
+}
+
+class _ResetHomePageState extends State<ResetHomePage> {
+  bool _isResetDone = false;
+
+  void _completeReset() {
+    setState(() {
+      _isResetDone = true;
+    });
+  }
+
+  void _undoReset() {
+    setState(() {
+      _isResetDone = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final statusText = _isResetDone
+        ? 'Сброс выполнен. Можно продолжать спокойно.'
+        : 'Один простой экран, чтобы начать день заново.';
 
     return Scaffold(
       appBar: AppBar(title: const Text('Reset Button')),
@@ -46,18 +68,25 @@ class ResetHomePage extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                'Один простой экран, чтобы начать день заново.',
+                statusText,
                 textAlign: TextAlign.center,
                 style: textTheme.bodyLarge,
               ),
               const SizedBox(height: 32),
               FilledButton(
-                onPressed: () {},
+                onPressed: _isResetDone ? null : _completeReset,
                 style: FilledButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 18),
                 ),
                 child: const Text('Сбросить'),
               ),
+              if (_isResetDone) ...[
+                const SizedBox(height: 12),
+                TextButton(
+                  onPressed: _undoReset,
+                  child: const Text('Отменить'),
+                ),
+              ],
               const Spacer(),
               Text(
                 'Работает локально на телефоне.',
