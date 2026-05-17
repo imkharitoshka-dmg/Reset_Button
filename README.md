@@ -1,17 +1,32 @@
-# reset_button
+# Reset Button
 
-A new Flutter project.
+Android-приложение на Flutter для коротких reset-сценариев: усталость, тревога, перегруз, потеря фокуса, хаос в голове, подготовка к встрече и восстановление после тяжёлого разговора.
 
-## Getting Started
+## MVP
 
-This project is a starting point for a Flutter application.
+Приложение работает локально на устройстве:
 
-A few resources to get you started if this is your first Flutter project:
+- без бэкенда;
+- без авторизации;
+- без Firebase;
+- без интернета;
+- без уведомлений;
+- без таймера в MVP;
+- с локальным хранением истории через shared_preferences.
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+## Основные экраны
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- главный экран выбора состояния;
+- экран выбора сценария;
+- экран прохождения сценария;
+- история reset-сессий.
+
+## Разработка
+
+Проверки после каждого шага:
+
+```bash
+flutter analyze
+flutter test
+flutter run -d emulator-5554
+```
