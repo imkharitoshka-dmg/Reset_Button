@@ -39,6 +39,23 @@ void main() {
     expect(find.text('Быстрый reset на 3 минуты'), findsOneWidget);
   });
 
+  testWidgets('Opens scenario selection after tapping a state', (tester) async {
+    await tester.pumpWidget(const ResetButtonApp());
+    await tester.pump();
+
+    await tester.tap(find.text('Я тревожусь'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Я тревожусь'), findsOneWidget);
+    expect(find.text('3 минуты заземления'), findsOneWidget);
+    expect(find.text('5 минут спокойствия'), findsOneWidget);
+    expect(find.text('10 минут стабилизации'), findsOneWidget);
+    expect(find.text('3 минуты'), findsOneWidget);
+    expect(find.text('5 минут'), findsOneWidget);
+    expect(find.text('10 минут'), findsOneWidget);
+    expect(find.text('Начать'), findsNWidgets(3));
+  });
+
   testWidgets('Shows empty history state', (tester) async {
     await tester.pumpWidget(const ResetButtonApp());
     await tester.pump();

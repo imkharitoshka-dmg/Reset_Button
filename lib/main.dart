@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'reset_scenario.dart';
 import 'reset_scenarios_data.dart';
 import 'reset_session.dart';
 import 'reset_storage_service.dart';
@@ -36,10 +37,16 @@ class ResetHomePage extends StatefulWidget {
 }
 
 class _ResetHomePageState extends State<ResetHomePage> {
-  void _showSelection(String title) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(title)));
+  void _openScenarioSelection({
+    required String title,
+    required List<ResetScenario> scenarios,
+  }) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (context) =>
+            ScenarioSelectionPage(title: title, scenarios: scenarios),
+      ),
+    );
   }
 
   @override
@@ -90,13 +97,19 @@ class _ResetHomePageState extends State<ResetHomePage> {
             for (final stateTitle in resetStateTitles) ...[
               _StateSelectionCard(
                 title: stateTitle,
-                onTap: () => _showSelection(stateTitle),
+                onTap: () => _openScenarioSelection(
+                  title: stateTitle,
+                  scenarios: scenariosForState(stateTitle),
+                ),
               ),
               const SizedBox(height: 12),
             ],
             const SizedBox(height: 8),
             FilledButton(
-              onPressed: () => _showSelection('Быстрый reset'),
+              onPressed: () => _openScenarioSelection(
+                title: quickResetScenario.stateTitle,
+                scenarios: const [quickResetScenario],
+              ),
               style: FilledButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 18),
                 shape: RoundedRectangleBorder(
@@ -139,6 +152,77 @@ class _StateSelectionCard extends StatelessWidget {
               const Icon(Icons.chevron_right),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class ScenarioSelectionPage extends StatelessWidget {
+  const ScenarioSelectionPage({
+    super.key,
+    required this.title,
+    required this.scenarios,
+  });
+
+  final String title;
+  final List<ResetScenario> scenarios;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(title)),
+      body: SafeArea(
+        child: ListView.separated(
+          padding: const EdgeInsets.all(16),
+          itemCount: scenarios.length,
+          separatorBuilder: (context, index) => const SizedBox(height: 12),
+          itemBuilder: (context, index) {
+            return ScenarioSelectionCard(scenario: scenarios[index]);
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class ScenarioSelectionCard extends StatelessWidget {
+  const ScenarioSelectionCard({super.key, required this.scenario});
+
+  final ResetScenario scenario;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              scenario.title,
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 8),
+            Text(formatDurationMinutes(scenario.durationMinutes)),
+            const SizedBox(height: 8),
+            Text(scenario.description),
+            const SizedBox(height: 16),
+            FilledButton(
+              onPressed: () {
+                ScaffoldMessenger.of(context)
+                  ..hideCurrentSnackBar()
+                  ..showSnackBar(
+                    const SnackBar(content: Text('Сценарий выбран')),
+                  );
+              },
+              child: const Text('Начать'),
+            ),
+          ],
         ),
       ),
     );
@@ -277,4 +361,16 @@ String formatRussianDateTime(DateTime date) {
   final minute = date.minute.toString().padLeft(2, '0');
 
   return '${formatRussianDate(date)}, $hour:$minute';
+}
+
+String formatDurationMinutes(int minutes) {
+  if (minutes == 1) {
+    return '1 минута';
+  }
+
+  if (minutes >= 2 && minutes <= 4) {
+    return '$minutes минуты';
+  }
+
+  return '$minutes минут';
 }

@@ -302,3 +302,9 @@ const resetScenarios = [
 ];
 
 const allResetScenarios = [quickResetScenario, ...resetScenarios];
+
+List<ResetScenario> scenariosForState(String stateTitle) {
+  return resetScenarios
+      .where((scenario) => scenario.stateTitle == stateTitle)
+      .toList();
+}
