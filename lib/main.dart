@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'reset_storage_service.dart';
+
 void main() {
   runApp(const ResetButtonApp());
 }
@@ -22,16 +24,40 @@ class ResetButtonApp extends StatelessWidget {
 }
 
 class ResetHomePage extends StatefulWidget {
-  const ResetHomePage({super.key, this.today});
+  const ResetHomePage({
+    super.key,
+    this.today,
+    ResetStorageService? storageService,
+  }) : storageService = storageService ?? const ResetStorageService();
 
   final DateTime? today;
+  final ResetStorageService storageService;
 
   @override
   State<ResetHomePage> createState() => _ResetHomePageState();
 }
 
 class _ResetHomePageState extends State<ResetHomePage> {
-  String? _resetDateKey;
+  Set<String> _resetSessionDates = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _loadResetSessionDates();
+  }
+
+  Future<void> _loadResetSessionDates() async {
+    final resetSessionDates = await widget.storageService
+        .loadResetSessionDates();
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _resetSessionDates = resetSessionDates;
+    });
+  }
 
   DateTime get _today => widget.today ?? DateTime.now();
 
@@ -43,18 +69,26 @@ class _ResetHomePageState extends State<ResetHomePage> {
     return '${today.year}-$month-$day';
   }
 
-  bool get _isResetDone => _resetDateKey == _todayKey;
+  bool get _isResetDone => _resetSessionDates.contains(_todayKey);
 
-  void _completeReset() {
+  Future<void> _completeReset() async {
+    final todayKey = _todayKey;
+
     setState(() {
-      _resetDateKey = _todayKey;
+      _resetSessionDates = {..._resetSessionDates, todayKey};
     });
+
+    await widget.storageService.saveCompletedResetSession(todayKey);
   }
 
-  void _undoReset() {
+  Future<void> _undoReset() async {
+    final todayKey = _todayKey;
+
     setState(() {
-      _resetDateKey = null;
+      _resetSessionDates = {..._resetSessionDates}..remove(todayKey);
     });
+
+    await widget.storageService.removeResetSession(todayKey);
   }
 
   @override
