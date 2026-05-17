@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'reset_scenarios_data.dart';
 import 'reset_session.dart';
 import 'reset_storage_service.dart';
 
@@ -25,13 +26,9 @@ class ResetButtonApp extends StatelessWidget {
 }
 
 class ResetHomePage extends StatefulWidget {
-  const ResetHomePage({
-    super.key,
-    this.today,
-    ResetStorageService? storageService,
-  }) : storageService = storageService ?? const ResetStorageService();
+  const ResetHomePage({super.key, ResetStorageService? storageService})
+    : storageService = storageService ?? const ResetStorageService();
 
-  final DateTime? today;
   final ResetStorageService storageService;
 
   @override
@@ -39,69 +36,15 @@ class ResetHomePage extends StatefulWidget {
 }
 
 class _ResetHomePageState extends State<ResetHomePage> {
-  Set<String> _resetSessionDates = {};
-
-  @override
-  void initState() {
-    super.initState();
-    _loadResetSessionDates();
-  }
-
-  Future<void> _loadResetSessionDates() async {
-    final resetSessionDates = await widget.storageService
-        .loadResetSessionDates();
-
-    if (!mounted) {
-      return;
-    }
-
-    setState(() {
-      _resetSessionDates = resetSessionDates;
-    });
-  }
-
-  DateTime get _today => widget.today ?? DateTime.now();
-
-  String get _todayKey {
-    final today = _today;
-    final month = today.month.toString().padLeft(2, '0');
-    final day = today.day.toString().padLeft(2, '0');
-
-    return '${today.year}-$month-$day';
-  }
-
-  bool get _isResetDone => _resetSessionDates.contains(_todayKey);
-
-  Future<void> _completeReset() async {
-    final todayKey = _todayKey;
-
-    setState(() {
-      _resetSessionDates = {..._resetSessionDates, todayKey};
-    });
-
-    await widget.storageService.saveCompletedResetSession(
-      dateKey: todayKey,
-      completedAt: _today,
-    );
-  }
-
-  Future<void> _undoReset() async {
-    final todayKey = _todayKey;
-
-    setState(() {
-      _resetSessionDates = {..._resetSessionDates}..remove(todayKey);
-    });
-
-    await widget.storageService.removeResetSession(todayKey);
+  void _showSelection(String title) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(title)));
   }
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final statusText = _isResetDone
-        ? 'Сброс выполнен. Можно продолжать спокойно.'
-        : 'Один простой экран, чтобы начать день заново.';
-    final dateText = formatRussianDate(_today);
 
     return Scaffold(
       appBar: AppBar(
@@ -122,52 +65,78 @@ class _ResetHomePageState extends State<ResetHomePage> {
         ],
       ),
       body: SafeArea(
-        child: Padding(
+        child: ListView(
           padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              'Reset Button',
+              style: textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Короткие сценарии, чтобы вернуться в спокойствие и фокус',
+              style: textTheme.bodyLarge,
+            ),
+            const SizedBox(height: 32),
+            Text(
+              'Что сейчас происходит?',
+              style: textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 16),
+            for (final stateTitle in resetStateTitles) ...[
+              _StateSelectionCard(
+                title: stateTitle,
+                onTap: () => _showSelection(stateTitle),
+              ),
+              const SizedBox(height: 12),
+            ],
+            const SizedBox(height: 8),
+            FilledButton(
+              onPressed: () => _showSelection('Быстрый reset'),
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 18),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+              child: const Text('Быстрый reset на 3 минуты'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _StateSelectionCard extends StatelessWidget {
+  const _StateSelectionCard({required this.title, required this.onTap});
+
+  final String title;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+          child: Row(
             children: [
-              const Spacer(),
-              Text(
-                'Кнопка сброса',
-                textAlign: TextAlign.center,
-                style: textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
+              Expanded(
+                child: Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
               ),
-              const SizedBox(height: 16),
-              Text(
-                dateText,
-                textAlign: TextAlign.center,
-                style: textTheme.titleMedium,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                statusText,
-                textAlign: TextAlign.center,
-                style: textTheme.bodyLarge,
-              ),
-              const SizedBox(height: 32),
-              FilledButton(
-                onPressed: _isResetDone ? null : _completeReset,
-                style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 18),
-                ),
-                child: const Text('Сбросить'),
-              ),
-              if (_isResetDone) ...[
-                const SizedBox(height: 12),
-                TextButton(
-                  onPressed: _undoReset,
-                  child: const Text('Отменить'),
-                ),
-              ],
-              const Spacer(),
-              Text(
-                'Работает локально на телефоне.',
-                textAlign: TextAlign.center,
-                style: textTheme.bodySmall,
-              ),
+              const SizedBox(width: 12),
+              const Icon(Icons.chevron_right),
             ],
           ),
         ),
