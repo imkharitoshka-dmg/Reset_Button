@@ -48,6 +48,7 @@ class _ScenarioProgressPageState extends State<ScenarioProgressPage> {
         scenarioTitle: widget.scenario.title,
         durationMinutes: widget.scenario.durationMinutes,
         result: _storageResult,
+        scenarioVariantId: widget.scenario.defaultVariant.id,
         note: note.isEmpty ? null : note,
       ),
     );

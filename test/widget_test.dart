@@ -275,6 +275,7 @@ void main() {
     expect(sessions.single.scenarioTitle, '3 минуты: заземлиться');
     expect(sessions.single.durationMinutes, 3);
     expect(sessions.single.result, 'частично');
+    expect(sessions.single.scenarioVariantId, 'anxious-3-default');
     expect(sessions.single.note, 'Стало чуть спокойнее.');
 
     await tester.tap(find.byTooltip('История'));

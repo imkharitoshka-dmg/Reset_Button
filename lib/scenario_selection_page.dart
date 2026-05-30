@@ -4,6 +4,7 @@ import 'formatters.dart';
 import 'reset_scenario.dart';
 import 'reset_storage_service.dart';
 import 'scenario_progress_page.dart';
+import 'scenario_variant_selector.dart';
 
 class ScenarioSelectionPage extends StatelessWidget {
   const ScenarioSelectionPage({
@@ -80,11 +81,26 @@ class ScenarioSelectionCard extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             FilledButton(
-              onPressed: () {
+              onPressed: () async {
+                final history = await storageService.loadResetSessions();
+                final selectedVariant = const ScenarioVariantSelector().select(
+                  scenario: scenario,
+                  history: history,
+                  stateTitle: scenario.stateTitle,
+                  durationMinutes: scenario.durationMinutes,
+                );
+                final selectedScenario = scenario.withSelectedVariant(
+                  selectedVariant,
+                );
+
+                if (!context.mounted) {
+                  return;
+                }
+
                 Navigator.of(context).push(
                   MaterialPageRoute<void>(
                     builder: (context) => ScenarioProgressPage(
-                      scenario: scenario,
+                      scenario: selectedScenario,
                       storageService: storageService,
                     ),
                   ),

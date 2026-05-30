@@ -8,6 +8,7 @@ class ResetSession {
     required this.scenarioTitle,
     required this.durationMinutes,
     required this.result,
+    this.scenarioVariantId,
     this.note,
   });
 
@@ -17,6 +18,7 @@ class ResetSession {
   final String scenarioTitle;
   final int durationMinutes;
   final String result;
+  final String? scenarioVariantId;
   final String? note;
 
   String get state => stateTitle;
@@ -44,6 +46,7 @@ class ResetSession {
       'scenarioTitle': scenarioTitle,
       'durationMinutes': durationMinutes,
       'result': result,
+      'scenarioVariantId': scenarioVariantId,
       'note': note,
     });
   }
@@ -62,6 +65,7 @@ class ResetSession {
           json['durationMinutes'] as int? ??
           _parseDurationMinutes(json['duration']! as String),
       result: json['result']! as String,
+      scenarioVariantId: json['scenarioVariantId'] as String?,
       note: json['note'] as String?,
     );
   }

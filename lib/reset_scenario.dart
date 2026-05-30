@@ -109,4 +109,14 @@ class ResetScenario {
       defaultVariantId: defaultVariant.id,
     );
   }
+
+  ResetScenario withSelectedVariant(ResetScenarioVariant variant) {
+    return ResetScenario.withVariants(
+      id: id,
+      stateTitle: stateTitle,
+      durationMinutes: durationMinutes,
+      variants: [variant],
+      defaultVariantId: variant.id,
+    );
+  }
 }
