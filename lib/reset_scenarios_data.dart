@@ -24,16 +24,51 @@ const quickResetScenario = ResetScenario(
 );
 
 const resetScenarios = [
-  ResetScenario(
+  ResetScenario.withVariants(
     id: 'tired-3',
     stateTitle: 'Я устала',
-    title: '3 минуты восстановления',
     durationMinutes: 3,
-    description: 'Короткая пауза, чтобы дать телу немного отдыха.',
-    steps: [
-      'Отложи телефон и закрой лишние вкладки.',
-      'Расслабь плечи, челюсть и кисти рук.',
-      'Сделай несколько спокойных вдохов и выбери самое лёгкое следующее действие.',
+    defaultVariantId: 'tired-3-default',
+    variants: [
+      ResetScenarioVariant(
+        id: 'tired-3-default',
+        title: '3 минуты восстановления',
+        shortDescription: 'Короткая пауза, чтобы дать телу немного отдыха.',
+        stateTitle: 'Я устала',
+        durationMinutes: 3,
+        checklistItems: [
+          'Отложи телефон и закрой лишние вкладки.',
+          'Расслабь плечи, челюсть и кисти рук.',
+          'Сделай несколько спокойных вдохов и выбери самое лёгкое следующее действие.',
+        ],
+      ),
+      ResetScenarioVariant(
+        id: 'tired-3-physical',
+        title: 'Короткая разминка',
+        shortDescription: 'Физический reset, чтобы мягко переключить внимание.',
+        stateTitle: 'Я устала',
+        durationMinutes: 3,
+        checklistItems: [
+          'Встань или сядь устойчиво, почувствуй опору стоп.',
+          'Медленно потянись вверх и расслабь плечи.',
+          'Поверни голову вправо и влево без усилия.',
+          'Сделай один спокойный вдох и вернись к ближайшему действию.',
+        ],
+      ),
+      ResetScenarioVariant(
+        id: 'tired-3-next-step',
+        title: 'Один маленький шаг',
+        shortDescription:
+            'Мягкий reset через снижение нагрузки и выбор простого шага.',
+        stateTitle: 'Я устала',
+        durationMinutes: 3,
+        checklistItems: [
+          'Запиши всё, что сейчас требует внимания.',
+          'Выбери одну задачу, которую можно отложить.',
+          'Оставь один маленький шаг на ближайшие несколько минут.',
+          'Начни с действия, которое проще всего выполнить.',
+        ],
+      ),
     ],
   ),
   ResetScenario(
