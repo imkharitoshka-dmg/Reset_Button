@@ -86,7 +86,7 @@ const quickResetScenario = ResetScenario(
 const resetScenarios = [
   ResetScenario.withVariants(
     id: 'tired-3',
-    stateTitle: 'Я устала',
+    stateTitle: 'Усталость',
     durationMinutes: 3,
     defaultVariantId: 'tired-3-default',
     variants: [
@@ -94,7 +94,7 @@ const resetScenarios = [
         id: 'tired-3-default',
         title: '3 минуты восстановления',
         shortDescription: 'Короткая пауза, чтобы дать телу немного отдыха.',
-        stateTitle: 'Я устала',
+        stateTitle: 'Усталость',
         durationMinutes: 3,
         checklistItems: [
           'Отложи телефон и закрой лишние вкладки.',
@@ -106,7 +106,7 @@ const resetScenarios = [
         id: 'tired-3-physical',
         title: 'Короткая разминка',
         shortDescription: 'Физический reset, чтобы мягко переключить внимание.',
-        stateTitle: 'Я устала',
+        stateTitle: 'Усталость',
         durationMinutes: 3,
         checklistItems: [
           'Встань или сядь устойчиво, почувствуй опору стоп.',
@@ -120,7 +120,7 @@ const resetScenarios = [
         title: 'Один маленький шаг',
         shortDescription:
             'Мягкий reset через снижение нагрузки и выбор простого шага.',
-        stateTitle: 'Я устала',
+        stateTitle: 'Усталость',
         durationMinutes: 3,
         checklistItems: [
           'Запиши всё, что сейчас требует внимания.',
@@ -133,7 +133,7 @@ const resetScenarios = [
   ),
   ResetScenario.withVariants(
     id: 'tired-5',
-    stateTitle: 'Я устала',
+    stateTitle: 'Усталость',
     durationMinutes: 5,
     defaultVariantId: 'tired-5-default',
     variants: [
@@ -142,7 +142,7 @@ const resetScenarios = [
         title: '5 минут восстановления',
         shortDescription:
             'Мягкий reset для усталости без попытки сразу ускориться.',
-        stateTitle: 'Я устала',
+        stateTitle: 'Усталость',
         durationMinutes: 5,
         checklistItems: [
           'Сядь удобно и убери визуальный шум вокруг себя.',
@@ -155,7 +155,7 @@ const resetScenarios = [
         id: 'tired-5-body',
         title: 'Мягкая пауза для тела',
         shortDescription: 'Телесный reset на несколько спокойных движений.',
-        stateTitle: 'Я устала',
+        stateTitle: 'Усталость',
         durationMinutes: 5,
         checklistItems: [
           'Поставь стопы на пол и расслабь плечи.',
@@ -170,7 +170,7 @@ const resetScenarios = [
         title: 'Пауза и один шаг',
         shortDescription:
             'Reset через снижение нагрузки, воду и маленькое следующее действие.',
-        stateTitle: 'Я устала',
+        stateTitle: 'Усталость',
         durationMinutes: 5,
         checklistItems: [
           'Налей воды или сделай несколько глотков, если вода рядом.',
@@ -184,7 +184,7 @@ const resetScenarios = [
   ),
   ResetScenario.withVariants(
     id: 'tired-10',
-    stateTitle: 'Я устала',
+    stateTitle: 'Усталость',
     durationMinutes: 10,
     defaultVariantId: 'tired-10-default',
     variants: [
@@ -192,7 +192,7 @@ const resetScenarios = [
         id: 'tired-10-default',
         title: '10 минут восстановления',
         shortDescription: 'Более длинная пауза перед возвращением к делам.',
-        stateTitle: 'Я устала',
+        stateTitle: 'Усталость',
         durationMinutes: 10,
         checklistItems: [
           'Налей воды и отойди от рабочего места.',
@@ -206,7 +206,7 @@ const resetScenarios = [
         title: 'Тихая пауза для тела',
         shortDescription:
             'Восстановительный reset через паузу, тело и меньше сенсорной нагрузки.',
-        stateTitle: 'Я устала',
+        stateTitle: 'Усталость',
         durationMinutes: 10,
         checklistItems: [
           'Отложи телефон экраном вниз или убери его в сторону.',
@@ -222,7 +222,7 @@ const resetScenarios = [
         title: 'Разобрать нагрузку',
         shortDescription:
             'Reset через разбор нагрузки, один следующий шаг и мягкое возвращение.',
-        stateTitle: 'Я устала',
+        stateTitle: 'Усталость',
         durationMinutes: 10,
         checklistItems: [
           'Выпиши всё, что сейчас занимает внимание.',
@@ -487,9 +487,10 @@ String scenarioStateTitleForUserState(String stateTitle) {
   return switch (stateTitle) {
     'Меня накрыл стресс' => 'Я тревожусь',
     'Я переживаю из-за будущего' => 'Я тревожусь',
-    'Усталость' => 'Я устала',
-    'Эмоциональное истощение' => 'Я устала',
-    'Мне ничего не хочется' => 'Я устала',
+    'Я устала' => 'Усталость',
+    'Усталость' => 'Усталость',
+    'Эмоциональное истощение' => 'Усталость',
+    'Мне ничего не хочется' => 'Усталость',
     'Слишком много задач' => 'Я перегружена задачами',
     'Слишком много информации' => 'У меня хаос в голове',
     'Я не могу начать' => 'Я не могу сфокусироваться',

@@ -98,14 +98,23 @@ void main() {
     expect(variant, isNull);
   });
 
-  test('Tired 3 minute scenario has three variants with the old default', () {
+  test('Tired scenarios have 3, 5, and 10 minute options', () {
+    final durations = scenariosForUserState(
+      'Усталость',
+    ).map((scenario) => scenario.durationMinutes).toSet();
+
+    expect(durations, {3, 5, 10});
+  });
+
+  test('Tired 3 minute scenario has three variants with the default', () {
     final scenario = resetScenarios.singleWhere(
       (scenario) =>
-          scenario.stateTitle == 'Я устала' && scenario.durationMinutes == 3,
+          scenario.stateTitle == 'Усталость' && scenario.durationMinutes == 3,
     );
     final variantIds = scenario.variants.map((variant) => variant.id).toSet();
 
     expect(scenario.variants, hasLength(3));
+    expect(scenario.defaultVariant, isNotNull);
     expect(scenario.defaultVariant.id, 'tired-3-default');
     expect(scenario.defaultVariant.title, '3 минуты восстановления');
     expect(
@@ -119,18 +128,20 @@ void main() {
     ]);
     expect(variantIds, hasLength(scenario.variants.length));
     for (final variant in scenario.variants) {
+      expect(variant.stateTitle, 'Усталость');
       expect(variant.checklistItems, isNotEmpty);
     }
   });
 
-  test('Tired 5 minute scenario has three variants with the old default', () {
+  test('Tired 5 minute scenario has three variants with the default', () {
     final scenario = resetScenarios.singleWhere(
       (scenario) =>
-          scenario.stateTitle == 'Я устала' && scenario.durationMinutes == 5,
+          scenario.stateTitle == 'Усталость' && scenario.durationMinutes == 5,
     );
     final variantIds = scenario.variants.map((variant) => variant.id).toSet();
 
     expect(scenario.variants, hasLength(3));
+    expect(scenario.defaultVariant, isNotNull);
     expect(scenario.defaultVariant.id, 'tired-5-default');
     expect(scenario.defaultVariant.title, '5 минут восстановления');
     expect(
@@ -145,18 +156,20 @@ void main() {
     ]);
     expect(variantIds, hasLength(scenario.variants.length));
     for (final variant in scenario.variants) {
+      expect(variant.stateTitle, 'Усталость');
       expect(variant.checklistItems, isNotEmpty);
     }
   });
 
-  test('Tired 10 minute scenario has three variants with the old default', () {
+  test('Tired 10 minute scenario has three variants with the default', () {
     final scenario = resetScenarios.singleWhere(
       (scenario) =>
-          scenario.stateTitle == 'Я устала' && scenario.durationMinutes == 10,
+          scenario.stateTitle == 'Усталость' && scenario.durationMinutes == 10,
     );
     final variantIds = scenario.variants.map((variant) => variant.id).toSet();
 
     expect(scenario.variants, hasLength(3));
+    expect(scenario.defaultVariant, isNotNull);
     expect(scenario.defaultVariant.id, 'tired-10-default');
     expect(scenario.defaultVariant.title, '10 минут восстановления');
     expect(
@@ -171,7 +184,31 @@ void main() {
     ]);
     expect(variantIds, hasLength(scenario.variants.length));
     for (final variant in scenario.variants) {
+      expect(variant.stateTitle, 'Усталость');
       expect(variant.checklistItems, isNotEmpty);
+    }
+  });
+
+  test('Tired scenario variants use neutral wording', () {
+    final tiredScenarios = scenariosForUserState('Усталость');
+    final variantIds = <String>{};
+    final forbiddenWords = ['устала', 'готова', 'собралась', 'вымотана'];
+
+    for (final scenario in tiredScenarios) {
+      expect(scenario.variants.length, greaterThanOrEqualTo(3));
+      for (final variant in scenario.variants) {
+        expect(variantIds.add(variant.id), isTrue);
+        final text = [
+          scenario.stateTitle,
+          variant.title,
+          variant.shortDescription,
+          ...variant.checklistItems,
+        ].join(' ').toLowerCase();
+
+        for (final word in forbiddenWords) {
+          expect(text, isNot(contains(word)));
+        }
+      }
     }
   });
 
