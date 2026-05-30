@@ -71,14 +71,33 @@ void main() {
     expect(find.text('Как выбрать reset?'), findsNothing);
   });
 
-  testWidgets('Opens scenario selection after tapping a state', (tester) async {
+  testWidgets('Opens state selection after tapping a cluster', (tester) async {
     await tester.pumpWidget(const ResetButtonApp());
     await tester.pump();
 
     await tester.tap(find.text('Успокоиться'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Успокоиться'), findsOneWidget);
+    expect(find.text('Успокоиться'), findsWidgets);
+    expect(
+      find.text('Выбери, что ближе всего к текущему состоянию.'),
+      findsOneWidget,
+    );
+    expect(find.text('Меня накрыл стресс'), findsOneWidget);
+    expect(find.text('Я тревожусь'), findsOneWidget);
+    expect(find.text('Я переживаю из-за будущего'), findsOneWidget);
+  });
+
+  testWidgets('Opens scenario selection after tapping a state', (tester) async {
+    await tester.pumpWidget(const ResetButtonApp());
+    await tester.pump();
+
+    await tester.tap(find.text('Успокоиться'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Я тревожусь'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Я тревожусь'), findsOneWidget);
     expect(find.text('3 минуты заземления'), findsOneWidget);
     expect(find.text('5 минут спокойствия'), findsOneWidget);
     expect(find.text('10 минут стабилизации'), findsOneWidget);
@@ -144,12 +163,14 @@ void main() {
 
     await tester.tap(find.text('Успокоиться'));
     await tester.pumpAndSettle();
+    await tester.tap(find.text('Я тревожусь'));
+    await tester.pumpAndSettle();
 
     await tester.tap(find.widgetWithText(FilledButton, 'Начать').first);
     await tester.pumpAndSettle();
 
     expect(find.text('3 минуты заземления'), findsWidgets);
-    expect(find.text('Успокоиться'), findsOneWidget);
+    expect(find.text('Я тревожусь'), findsOneWidget);
     expect(find.text('3 минуты'), findsOneWidget);
     expect(find.text('Почувствуй опору стоп и спины.'), findsOneWidget);
     expect(find.byType(CheckboxListTile), findsWidgets);
@@ -192,6 +213,8 @@ void main() {
 
     await tester.tap(find.text('Успокоиться'));
     await tester.pumpAndSettle();
+    await tester.tap(find.text('Я тревожусь'));
+    await tester.pumpAndSettle();
 
     await tester.tap(find.widgetWithText(FilledButton, 'Начать').first);
     await tester.pumpAndSettle();
@@ -217,7 +240,7 @@ void main() {
     final sessions = await storageService.loadResetSessions();
     expect(sessions, hasLength(1));
     expect(sessions.single.id, startsWith('anxious-3-'));
-    expect(sessions.single.stateTitle, 'Успокоиться');
+    expect(sessions.single.stateTitle, 'Я тревожусь');
     expect(sessions.single.scenarioTitle, '3 минуты заземления');
     expect(sessions.single.durationMinutes, 3);
     expect(sessions.single.result, 'частично');
@@ -226,7 +249,7 @@ void main() {
     await tester.tap(find.byTooltip('История'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Состояние: Успокоиться'), findsOneWidget);
+    expect(find.text('Состояние: Я тревожусь'), findsOneWidget);
     expect(find.text('Сценарий: 3 минуты заземления'), findsOneWidget);
     expect(find.text('Длительность: 3 минуты'), findsOneWidget);
     expect(find.text('Результат: частично'), findsOneWidget);

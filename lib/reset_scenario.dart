@@ -14,6 +14,17 @@ class ResetScenarioVariant {
   final String stateTitle;
   final int durationMinutes;
   final List<String> checklistItems;
+
+  ResetScenarioVariant withStateTitle(String nextStateTitle) {
+    return ResetScenarioVariant(
+      id: id,
+      title: title,
+      shortDescription: shortDescription,
+      stateTitle: nextStateTitle,
+      durationMinutes: durationMinutes,
+      checklistItems: checklistItems,
+    );
+  }
 }
 
 class ResetScenario {
@@ -92,7 +103,9 @@ class ResetScenario {
       id: id,
       stateTitle: nextStateTitle,
       durationMinutes: durationMinutes,
-      variants: variants,
+      variants: variants
+          .map((variant) => variant.withStateTitle(nextStateTitle))
+          .toList(),
       defaultVariantId: defaultVariant.id,
     );
   }

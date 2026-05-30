@@ -4,39 +4,59 @@ class ResetCluster {
   const ResetCluster({
     required this.id,
     required this.title,
-    required this.mappedStateTitle,
+    required this.stateTitles,
   });
 
   final String id;
   final String title;
-  final String mappedStateTitle;
+  final List<String> stateTitles;
 }
 
 const resetClusters = [
   ResetCluster(
     id: 'calm-down',
     title: 'Успокоиться',
-    mappedStateTitle: 'Я тревожусь',
+    stateTitles: [
+      'Меня накрыл стресс',
+      'Я тревожусь',
+      'Я переживаю из-за будущего',
+    ],
   ),
   ResetCluster(
     id: 'recover',
     title: 'Восстановиться',
-    mappedStateTitle: 'Я устала',
+    stateTitles: [
+      'Я устала',
+      'Я эмоционально вымотана',
+      'Мне ничего не хочется',
+    ],
   ),
   ResetCluster(
     id: 'clear-head',
     title: 'Разгрузить голову',
-    mappedStateTitle: 'У меня хаос в голове',
+    stateTitles: [
+      'У меня хаос в голове',
+      'Я перегружена задачами',
+      'Слишком много информации',
+    ],
   ),
   ResetCluster(
     id: 'focus',
     title: 'Сфокусироваться',
-    mappedStateTitle: 'Я не могу сфокусироваться',
+    stateTitles: [
+      'Я не могу сфокусироваться',
+      'Я не могу начать',
+      'Я распыляюсь',
+    ],
   ),
   ResetCluster(
     id: 'after-communication',
     title: 'Переключиться после общения',
-    mappedStateTitle: 'Мне нужно восстановиться после тяжёлого разговора',
+    stateTitles: [
+      'Я устала от общения',
+      'Был тяжёлый разговор',
+      'Мне нужно собраться перед встречей',
+    ],
   ),
 ];
 
@@ -463,10 +483,29 @@ List<ResetScenario> scenariosForState(String stateTitle) {
       .toList();
 }
 
-List<ResetScenario> scenariosForCluster(ResetCluster cluster) {
+String scenarioStateTitleForUserState(String stateTitle) {
+  return switch (stateTitle) {
+    'Меня накрыл стресс' => 'Я тревожусь',
+    'Я переживаю из-за будущего' => 'Я тревожусь',
+    'Я эмоционально вымотана' => 'Я устала',
+    'Мне ничего не хочется' => 'Я устала',
+    'Слишком много информации' => 'У меня хаос в голове',
+    'Я не могу начать' => 'Я не могу сфокусироваться',
+    'Я распыляюсь' => 'Я не могу сфокусироваться',
+    'Я устала от общения' =>
+      'Мне нужно восстановиться после тяжёлого разговора',
+    'Был тяжёлый разговор' =>
+      'Мне нужно восстановиться после тяжёлого разговора',
+    'Мне нужно собраться перед встречей' =>
+      'Мне нужно быстро собраться перед встречей',
+    _ => stateTitle,
+  };
+}
+
+List<ResetScenario> scenariosForUserState(String stateTitle) {
   return scenariosForState(
-    cluster.mappedStateTitle,
-  ).map((scenario) => scenario.withStateTitle(cluster.title)).toList();
+    scenarioStateTitleForUserState(stateTitle),
+  ).map((scenario) => scenario.withStateTitle(stateTitle)).toList();
 }
 
 ResetScenarioVariant? defaultScenarioVariantForStateAndDuration({
@@ -487,7 +526,20 @@ ResetScenarioVariant? defaultScenarioVariantForClusterAndDuration({
   required ResetCluster cluster,
   required int durationMinutes,
 }) {
-  for (final scenario in scenariosForCluster(cluster)) {
+  for (final scenario in scenariosForUserState(cluster.stateTitles.first)) {
+    if (scenario.durationMinutes == durationMinutes) {
+      return scenario.defaultVariant;
+    }
+  }
+
+  return null;
+}
+
+ResetScenarioVariant? defaultScenarioVariantForUserStateAndDuration({
+  required String stateTitle,
+  required int durationMinutes,
+}) {
+  for (final scenario in scenariosForUserState(stateTitle)) {
     if (scenario.durationMinutes == durationMinutes) {
       return scenario.defaultVariant;
     }

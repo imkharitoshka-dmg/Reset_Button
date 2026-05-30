@@ -16,6 +16,12 @@ void main() {
     ]);
   });
 
+  test('Each cluster has exactly three states', () {
+    for (final cluster in resetClusters) {
+      expect(cluster.stateTitles, hasLength(3));
+    }
+  });
+
   test('Each main state has 3, 5, and 10 minute scenarios', () {
     for (final stateTitle in resetStateTitles) {
       final durations = resetScenarios
@@ -29,24 +35,28 @@ void main() {
 
   test('Each cluster has 3, 5, and 10 minute scenarios', () {
     for (final cluster in resetClusters) {
-      final durations = scenariosForCluster(
-        cluster,
-      ).map((scenario) => scenario.durationMinutes).toSet();
+      for (final stateTitle in cluster.stateTitles) {
+        final durations = scenariosForUserState(
+          stateTitle,
+        ).map((scenario) => scenario.durationMinutes).toSet();
 
-      expect(durations, {3, 5, 10});
+        expect(durations, {3, 5, 10});
+      }
     }
   });
 
   test('Each cluster default variant has checklist items', () {
     for (final cluster in resetClusters) {
-      for (final durationMinutes in [3, 5, 10]) {
-        final variant = defaultScenarioVariantForClusterAndDuration(
-          cluster: cluster,
-          durationMinutes: durationMinutes,
-        );
+      for (final stateTitle in cluster.stateTitles) {
+        for (final durationMinutes in [3, 5, 10]) {
+          final variant = defaultScenarioVariantForUserStateAndDuration(
+            stateTitle: stateTitle,
+            durationMinutes: durationMinutes,
+          );
 
-        expect(variant, isNotNull);
-        expect(variant!.checklistItems, isNotEmpty);
+          expect(variant, isNotNull);
+          expect(variant!.checklistItems, isNotEmpty);
+        }
       }
     }
   });

@@ -17,15 +17,11 @@ class ResetHomePage extends StatefulWidget {
 }
 
 class _ResetHomePageState extends State<ResetHomePage> {
-  void _openScenarioSelection({
-    required String title,
-    required List<ResetScenario> scenarios,
-  }) {
+  void _openStateSelection(ResetCluster cluster) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (context) => ScenarioSelectionPage(
-          title: title,
-          scenarios: scenarios,
+        builder: (context) => ResetStateSelectionPage(
+          cluster: cluster,
           storageService: widget.storageService,
         ),
       ),
@@ -80,10 +76,7 @@ class _ResetHomePageState extends State<ResetHomePage> {
             for (final cluster in resetClusters) ...[
               _StateSelectionCard(
                 title: cluster.title,
-                onTap: () => _openScenarioSelection(
-                  title: cluster.title,
-                  scenarios: scenariosForCluster(cluster),
-                ),
+                onTap: () => _openStateSelection(cluster),
               ),
               const SizedBox(height: 12),
             ],
@@ -107,6 +100,21 @@ class _ResetHomePageState extends State<ResetHomePage> {
               child: const Text('Не знаю, что выбрать'),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  void _openScenarioSelection({
+    required String title,
+    required List<ResetScenario> scenarios,
+  }) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (context) => ScenarioSelectionPage(
+          title: title,
+          scenarios: scenarios,
+          storageService: widget.storageService,
         ),
       ),
     );
@@ -162,6 +170,64 @@ class _ResetHomePageState extends State<ResetHomePage> {
           ),
         );
       },
+    );
+  }
+}
+
+class ResetStateSelectionPage extends StatelessWidget {
+  const ResetStateSelectionPage({
+    super.key,
+    required this.cluster,
+    ResetStorageService? storageService,
+  }) : storageService = storageService ?? const ResetStorageService();
+
+  final ResetCluster cluster;
+  final ResetStorageService storageService;
+
+  void _openScenarioSelection(BuildContext context, String stateTitle) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (context) => ScenarioSelectionPage(
+          title: stateTitle,
+          scenarios: scenariosForUserState(stateTitle),
+          storageService: storageService,
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Scaffold(
+      appBar: AppBar(title: Text(cluster.title)),
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.all(24),
+          children: [
+            Text(
+              cluster.title,
+              style: textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Выбери, что ближе всего к текущему состоянию.',
+              style: textTheme.bodyLarge?.copyWith(height: 1.35),
+            ),
+            const SizedBox(height: 20),
+            for (final stateTitle in cluster.stateTitles) ...[
+              _StateSelectionCard(
+                title: stateTitle,
+                onTap: () => _openScenarioSelection(context, stateTitle),
+              ),
+              const SizedBox(height: 12),
+            ],
+          ],
+        ),
+      ),
     );
   }
 }
