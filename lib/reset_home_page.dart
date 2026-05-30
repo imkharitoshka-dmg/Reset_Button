@@ -101,9 +101,82 @@ class _ResetHomePageState extends State<ResetHomePage> {
               ),
               child: const Text('Быстрый reset на 3 минуты'),
             ),
+            const SizedBox(height: 12),
+            TextButton(
+              onPressed: _showClusterHelp,
+              child: const Text('Не знаю, что выбрать'),
+            ),
           ],
         ),
       ),
+    );
+  }
+
+  void _showClusterHelp() {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (context) {
+        return SafeArea(
+          child: FractionallySizedBox(
+            heightFactor: 0.75,
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+              children: [
+                Text(
+                  'Как выбрать reset?',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: 16),
+                const _ClusterHelpRow(
+                  hint: 'Накрыл стресс или тревожно',
+                  clusterTitle: 'Успокоиться',
+                ),
+                const _ClusterHelpRow(
+                  hint: 'Нет сил или чувствуешь усталость',
+                  clusterTitle: 'Восстановиться',
+                ),
+                const _ClusterHelpRow(
+                  hint: 'Слишком много задач или мыслей',
+                  clusterTitle: 'Разгрузить голову',
+                ),
+                const _ClusterHelpRow(
+                  hint: 'Сложно начать или удержать внимание',
+                  clusterTitle: 'Сфокусироваться',
+                ),
+                const _ClusterHelpRow(
+                  hint:
+                      'Был тяжёлый разговор или нужно собраться перед встречей',
+                  clusterTitle: 'Переключиться после общения',
+                ),
+                const SizedBox(height: 16),
+                FilledButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Понятно'),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _ClusterHelpRow extends StatelessWidget {
+  const _ClusterHelpRow({required this.hint, required this.clusterTitle});
+
+  final String hint;
+  final String clusterTitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Text('$hint → $clusterTitle'),
     );
   }
 }

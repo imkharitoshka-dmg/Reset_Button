@@ -40,6 +40,35 @@ void main() {
       scrollable: find.byType(Scrollable),
     );
     expect(find.text('Быстрый reset на 3 минуты'), findsOneWidget);
+    expect(find.text('Не знаю, что выбрать'), findsOneWidget);
+  });
+
+  testWidgets('Shows and closes cluster selection hint', (tester) async {
+    await tester.pumpWidget(const ResetButtonApp());
+    await tester.pump();
+
+    await tester.scrollUntilVisible(
+      find.text('Не знаю, что выбрать'),
+      100,
+      scrollable: find.byType(Scrollable),
+    );
+    await tester.tap(find.text('Не знаю, что выбрать'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Как выбрать reset?'), findsOneWidget);
+    for (final cluster in resetClusters) {
+      expect(find.textContaining(cluster.title), findsWidgets);
+    }
+
+    await tester.scrollUntilVisible(
+      find.text('Понятно'),
+      100,
+      scrollable: find.byType(Scrollable).last,
+    );
+    await tester.tap(find.text('Понятно'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Как выбрать reset?'), findsNothing);
   });
 
   testWidgets('Opens scenario selection after tapping a state', (tester) async {
