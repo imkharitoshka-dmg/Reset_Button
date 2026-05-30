@@ -95,6 +95,32 @@ void main() {
     }
   });
 
+  test('Tired 10 minute scenario has three variants with the old default', () {
+    final scenario = resetScenarios.singleWhere(
+      (scenario) =>
+          scenario.stateTitle == 'Я устала' && scenario.durationMinutes == 10,
+    );
+    final variantIds = scenario.variants.map((variant) => variant.id).toSet();
+
+    expect(scenario.variants, hasLength(3));
+    expect(scenario.defaultVariant.id, 'tired-10-default');
+    expect(scenario.defaultVariant.title, '10 минут восстановления');
+    expect(
+      scenario.defaultVariant.shortDescription,
+      'Более длинная пауза перед возвращением к делам.',
+    );
+    expect(scenario.defaultVariant.checklistItems, [
+      'Налей воды и отойди от рабочего места.',
+      'Сделай спокойную растяжку шеи, плеч и спины.',
+      'Запиши, что именно забирает больше всего сил.',
+      'Оставь только одну обязательную задачу на ближайший час.',
+    ]);
+    expect(variantIds, hasLength(scenario.variants.length));
+    for (final variant in scenario.variants) {
+      expect(variant.checklistItems, isNotEmpty);
+    }
+  });
+
   test('Quick reset scenario exists', () {
     expect(quickResetScenario.stateTitle, 'Быстрый reset');
     expect(quickResetScenario.title, 'Быстрый reset');
