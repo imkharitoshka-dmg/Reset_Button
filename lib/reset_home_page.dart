@@ -77,12 +77,12 @@ class _ResetHomePageState extends State<ResetHomePage> {
               ),
             ),
             const SizedBox(height: 16),
-            for (final stateTitle in resetStateTitles) ...[
+            for (final cluster in resetClusters) ...[
               _StateSelectionCard(
-                title: stateTitle,
+                title: cluster.title,
                 onTap: () => _openScenarioSelection(
-                  title: stateTitle,
-                  scenarios: scenariosForState(stateTitle),
+                  title: cluster.title,
+                  scenarios: scenariosForCluster(cluster),
                 ),
               ),
               const SizedBox(height: 12),

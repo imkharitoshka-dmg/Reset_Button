@@ -2,8 +2,18 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:reset_button/reset_scenarios_data.dart';
 
 void main() {
-  test('Contains seven main reset states', () {
+  test('Contains seven legacy reset states', () {
     expect(resetStateTitles, hasLength(7));
+  });
+
+  test('Contains five reset clusters', () {
+    expect(resetClusters.map((cluster) => cluster.title), [
+      'Успокоиться',
+      'Восстановиться',
+      'Разгрузить голову',
+      'Сфокусироваться',
+      'Переключиться после общения',
+    ]);
   });
 
   test('Each main state has 3, 5, and 10 minute scenarios', () {
@@ -14,6 +24,30 @@ void main() {
           .toSet();
 
       expect(durations, {3, 5, 10});
+    }
+  });
+
+  test('Each cluster has 3, 5, and 10 minute scenarios', () {
+    for (final cluster in resetClusters) {
+      final durations = scenariosForCluster(
+        cluster,
+      ).map((scenario) => scenario.durationMinutes).toSet();
+
+      expect(durations, {3, 5, 10});
+    }
+  });
+
+  test('Each cluster default variant has checklist items', () {
+    for (final cluster in resetClusters) {
+      for (final durationMinutes in [3, 5, 10]) {
+        final variant = defaultScenarioVariantForClusterAndDuration(
+          cluster: cluster,
+          durationMinutes: durationMinutes,
+        );
+
+        expect(variant, isNotNull);
+        expect(variant!.checklistItems, isNotEmpty);
+      }
     }
   });
 

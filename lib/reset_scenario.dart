@@ -86,4 +86,14 @@ class ResetScenario {
   String get description => defaultVariant.shortDescription;
 
   List<String> get steps => defaultVariant.checklistItems;
+
+  ResetScenario withStateTitle(String nextStateTitle) {
+    return ResetScenario.withVariants(
+      id: id,
+      stateTitle: nextStateTitle,
+      durationMinutes: durationMinutes,
+      variants: variants,
+      defaultVariantId: defaultVariant.id,
+    );
+  }
 }

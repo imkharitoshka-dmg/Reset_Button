@@ -1,5 +1,45 @@
 import 'reset_scenario.dart';
 
+class ResetCluster {
+  const ResetCluster({
+    required this.id,
+    required this.title,
+    required this.mappedStateTitle,
+  });
+
+  final String id;
+  final String title;
+  final String mappedStateTitle;
+}
+
+const resetClusters = [
+  ResetCluster(
+    id: 'calm-down',
+    title: 'Успокоиться',
+    mappedStateTitle: 'Я тревожусь',
+  ),
+  ResetCluster(
+    id: 'recover',
+    title: 'Восстановиться',
+    mappedStateTitle: 'Я устала',
+  ),
+  ResetCluster(
+    id: 'clear-head',
+    title: 'Разгрузить голову',
+    mappedStateTitle: 'У меня хаос в голове',
+  ),
+  ResetCluster(
+    id: 'focus',
+    title: 'Сфокусироваться',
+    mappedStateTitle: 'Я не могу сфокусироваться',
+  ),
+  ResetCluster(
+    id: 'after-communication',
+    title: 'Переключиться после общения',
+    mappedStateTitle: 'Мне нужно восстановиться после тяжёлого разговора',
+  ),
+];
+
 const resetStateTitles = [
   'Я устала',
   'Я тревожусь',
@@ -423,6 +463,12 @@ List<ResetScenario> scenariosForState(String stateTitle) {
       .toList();
 }
 
+List<ResetScenario> scenariosForCluster(ResetCluster cluster) {
+  return scenariosForState(
+    cluster.mappedStateTitle,
+  ).map((scenario) => scenario.withStateTitle(cluster.title)).toList();
+}
+
 ResetScenarioVariant? defaultScenarioVariantForStateAndDuration({
   required String stateTitle,
   required int durationMinutes,
@@ -430,6 +476,19 @@ ResetScenarioVariant? defaultScenarioVariantForStateAndDuration({
   for (final scenario in allResetScenarios) {
     if (scenario.stateTitle == stateTitle &&
         scenario.durationMinutes == durationMinutes) {
+      return scenario.defaultVariant;
+    }
+  }
+
+  return null;
+}
+
+ResetScenarioVariant? defaultScenarioVariantForClusterAndDuration({
+  required ResetCluster cluster,
+  required int durationMinutes,
+}) {
+  for (final scenario in scenariosForCluster(cluster)) {
+    if (scenario.durationMinutes == durationMinutes) {
       return scenario.defaultVariant;
     }
   }
