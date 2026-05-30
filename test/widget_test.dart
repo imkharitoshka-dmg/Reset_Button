@@ -88,6 +88,37 @@ void main() {
     expect(find.text('Я переживаю из-за будущего'), findsOneWidget);
   });
 
+  testWidgets('Shows gender-neutral state titles in clusters', (tester) async {
+    await tester.pumpWidget(const ResetButtonApp());
+    await tester.pump();
+
+    await tester.tap(find.text('Восстановиться'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Усталость'), findsOneWidget);
+    expect(find.text('Эмоциональное истощение'), findsOneWidget);
+    expect(find.text('Я устала'), findsNothing);
+    expect(find.text('Я эмоционально вымотана'), findsNothing);
+
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Разгрузить голову'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Слишком много задач'), findsOneWidget);
+    expect(find.text('Я перегружена задачами'), findsNothing);
+
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Переключиться после общения'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Усталость от общения'), findsOneWidget);
+    expect(find.text('Я устала от общения'), findsNothing);
+  });
+
   testWidgets('Opens scenario selection after tapping a state', (tester) async {
     await tester.pumpWidget(const ResetButtonApp());
     await tester.pump();

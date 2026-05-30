@@ -2,8 +2,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:reset_button/reset_scenarios_data.dart';
 
 void main() {
-  test('Contains seven legacy reset states', () {
+  test('Contains seven user-facing reset states', () {
     expect(resetStateTitles, hasLength(7));
+    expect(resetStateTitles, contains('Усталость'));
+    expect(resetStateTitles, contains('Слишком много задач'));
+    expect(resetStateTitles, isNot(contains('Я устала')));
+    expect(resetStateTitles, isNot(contains('Я перегружена задачами')));
   });
 
   test('Contains five reset clusters', () {
@@ -20,14 +24,20 @@ void main() {
     for (final cluster in resetClusters) {
       expect(cluster.stateTitles, hasLength(3));
     }
+    expect(resetClusters[1].stateTitles, [
+      'Усталость',
+      'Эмоциональное истощение',
+      'Мне ничего не хочется',
+    ]);
+    expect(resetClusters[2].stateTitles, contains('Слишком много задач'));
+    expect(resetClusters[4].stateTitles, contains('Усталость от общения'));
   });
 
   test('Each main state has 3, 5, and 10 minute scenarios', () {
     for (final stateTitle in resetStateTitles) {
-      final durations = resetScenarios
-          .where((scenario) => scenario.stateTitle == stateTitle)
-          .map((scenario) => scenario.durationMinutes)
-          .toSet();
+      final durations = scenariosForUserState(
+        stateTitle,
+      ).map((scenario) => scenario.durationMinutes).toSet();
 
       expect(durations, {3, 5, 10});
     }
