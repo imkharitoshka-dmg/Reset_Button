@@ -129,9 +129,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Я тревожусь'), findsOneWidget);
-    expect(find.text('3 минуты заземления'), findsOneWidget);
-    expect(find.text('5 минут спокойствия'), findsOneWidget);
-    expect(find.text('10 минут стабилизации'), findsOneWidget);
+    expect(find.text('3 минуты: заземлиться'), findsOneWidget);
+    expect(find.text('5 минут: заземлиться'), findsOneWidget);
+    expect(find.text('10 минут: заземлиться'), findsOneWidget);
     expect(find.text('3 минуты'), findsOneWidget);
     expect(find.text('5 минут'), findsOneWidget);
     expect(find.text('10 минут'), findsOneWidget);
@@ -200,7 +200,7 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Начать').first);
     await tester.pumpAndSettle();
 
-    expect(find.text('3 минуты заземления'), findsWidgets);
+    expect(find.text('3 минуты: заземлиться'), findsWidgets);
     expect(find.text('Я тревожусь'), findsOneWidget);
     expect(find.text('3 минуты'), findsOneWidget);
     expect(find.text('Почувствуй опору стоп и спины.'), findsOneWidget);
@@ -272,7 +272,7 @@ void main() {
     expect(sessions, hasLength(1));
     expect(sessions.single.id, startsWith('anxious-3-'));
     expect(sessions.single.stateTitle, 'Я тревожусь');
-    expect(sessions.single.scenarioTitle, '3 минуты заземления');
+    expect(sessions.single.scenarioTitle, '3 минуты: заземлиться');
     expect(sessions.single.durationMinutes, 3);
     expect(sessions.single.result, 'частично');
     expect(sessions.single.note, 'Стало чуть спокойнее.');
@@ -281,7 +281,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Состояние: Я тревожусь'), findsOneWidget);
-    expect(find.text('Сценарий: 3 минуты заземления'), findsOneWidget);
+    expect(find.text('Сценарий: 3 минуты: заземлиться'), findsOneWidget);
     expect(find.text('Длительность: 3 минуты'), findsOneWidget);
     expect(find.text('Результат: частично'), findsOneWidget);
     expect(find.text('Заметка: Стало чуть спокойнее.'), findsOneWidget);

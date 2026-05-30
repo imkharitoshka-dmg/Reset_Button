@@ -2,10 +2,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:reset_button/reset_scenarios_data.dart';
 
 void main() {
-  test('Contains seven user-facing reset states', () {
-    expect(resetStateTitles, hasLength(7));
+  test('Contains fifteen user-facing reset states', () {
+    expect(resetStateTitles, hasLength(15));
     expect(resetStateTitles, contains('Усталость'));
     expect(resetStateTitles, contains('Слишком много задач'));
+    expect(resetStateTitles, contains('Усталость от общения'));
     expect(resetStateTitles, isNot(contains('Я устала')));
     expect(resetStateTitles, isNot(contains('Я перегружена задачами')));
   });
@@ -66,6 +67,66 @@ void main() {
 
           expect(variant, isNotNull);
           expect(variant!.checklistItems, isNotEmpty);
+        }
+      }
+    }
+  });
+
+  test('All clusters have complete scenario variants', () {
+    const forbiddenWords = [
+      'устала',
+      'готова',
+      'собралась',
+      'вымотана',
+      'заметила',
+      'почувствовала',
+      'лечит',
+      'гарантированно',
+      'точно поможет',
+      'доказано',
+    ];
+
+    expect(resetClusters, hasLength(5));
+
+    for (final cluster in resetClusters) {
+      expect(cluster.stateTitles, hasLength(3));
+
+      for (final stateTitle in cluster.stateTitles) {
+        final scenarios = scenariosForUserState(stateTitle);
+        final durations = scenarios
+            .map((scenario) => scenario.durationMinutes)
+            .toSet();
+
+        expect(durations, {3, 5, 10});
+
+        for (final durationMinutes in [3, 5, 10]) {
+          final scenario = scenarios.singleWhere(
+            (scenario) => scenario.durationMinutes == durationMinutes,
+          );
+          final variantIds = scenario.variants
+              .map((variant) => variant.id)
+              .toSet();
+
+          expect(scenario.defaultVariant, isNotNull);
+          expect(scenario.variants.length, greaterThanOrEqualTo(3));
+          expect(variantIds, hasLength(scenario.variants.length));
+
+          for (final variant in scenario.variants) {
+            expect(variant.stateTitle, stateTitle);
+            expect(variant.durationMinutes, durationMinutes);
+            expect(variant.checklistItems, isNotEmpty);
+
+            final text = [
+              scenario.stateTitle,
+              variant.title,
+              variant.shortDescription,
+              ...variant.checklistItems,
+            ].join(' ').toLowerCase();
+
+            for (final word in forbiddenWords) {
+              expect(text, isNot(contains(word)));
+            }
+          }
         }
       }
     }
