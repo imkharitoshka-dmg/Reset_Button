@@ -71,6 +71,65 @@ void main() {
     }
   });
 
+  test('Recovery cluster has complete scenario variants', () {
+    final recoveryCluster = resetClusters.singleWhere(
+      (cluster) => cluster.title == 'Восстановиться',
+    );
+    const forbiddenWords = [
+      'устала',
+      'готова',
+      'собралась',
+      'вымотана',
+      'заметила',
+      'почувствовала',
+    ];
+
+    expect(recoveryCluster.stateTitles, [
+      'Усталость',
+      'Эмоциональное истощение',
+      'Мне ничего не хочется',
+    ]);
+
+    for (final stateTitle in recoveryCluster.stateTitles) {
+      final scenarios = scenariosForUserState(stateTitle);
+      final durations = scenarios
+          .map((scenario) => scenario.durationMinutes)
+          .toSet();
+
+      expect(durations, {3, 5, 10});
+
+      for (final durationMinutes in [3, 5, 10]) {
+        final scenario = scenarios.singleWhere(
+          (scenario) => scenario.durationMinutes == durationMinutes,
+        );
+        final variantIds = scenario.variants
+            .map((variant) => variant.id)
+            .toSet();
+
+        expect(scenario.defaultVariant, isNotNull);
+        expect(scenario.variants.length, greaterThanOrEqualTo(3));
+        expect(variantIds, hasLength(scenario.variants.length));
+
+        for (final variant in scenario.variants) {
+          expect(variant.stateTitle, stateTitle);
+          expect(variant.durationMinutes, durationMinutes);
+          expect(variant.checklistItems, isNotEmpty);
+
+          final text = [
+            scenario.stateTitle,
+            variant.title,
+            variant.shortDescription,
+            ...variant.checklistItems,
+          ].join(' ').toLowerCase();
+
+          for (final word in forbiddenWords) {
+            expect(text, isNot(contains(word)));
+          }
+        }
+      }
+    }
+  });
+
   test('Each scenario contains at least three steps', () {
     for (final scenario in allResetScenarios) {
       expect(scenario.steps.length, greaterThanOrEqualTo(3));
@@ -192,7 +251,14 @@ void main() {
   test('Tired scenario variants use neutral wording', () {
     final tiredScenarios = scenariosForUserState('Усталость');
     final variantIds = <String>{};
-    final forbiddenWords = ['устала', 'готова', 'собралась', 'вымотана'];
+    final forbiddenWords = [
+      'устала',
+      'готова',
+      'собралась',
+      'вымотана',
+      'заметила',
+      'почувствовала',
+    ];
 
     for (final scenario in tiredScenarios) {
       expect(scenario.variants.length, greaterThanOrEqualTo(3));
