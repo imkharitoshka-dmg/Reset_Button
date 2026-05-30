@@ -309,3 +309,17 @@ List<ResetScenario> scenariosForState(String stateTitle) {
       .where((scenario) => scenario.stateTitle == stateTitle)
       .toList();
 }
+
+ResetScenarioVariant? defaultScenarioVariantForStateAndDuration({
+  required String stateTitle,
+  required int durationMinutes,
+}) {
+  for (final scenario in allResetScenarios) {
+    if (scenario.stateTitle == stateTitle &&
+        scenario.durationMinutes == durationMinutes) {
+      return scenario.defaultVariant;
+    }
+  }
+
+  return null;
+}

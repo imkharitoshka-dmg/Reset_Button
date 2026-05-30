@@ -23,6 +23,27 @@ void main() {
     }
   });
 
+  test('Returns default variant for an existing state and duration', () {
+    final variant = defaultScenarioVariantForStateAndDuration(
+      stateTitle: 'Я тревожусь',
+      durationMinutes: 3,
+    );
+
+    expect(variant, isNotNull);
+    expect(variant!.stateTitle, 'Я тревожусь');
+    expect(variant.durationMinutes, 3);
+    expect(variant.checklistItems, isNotEmpty);
+  });
+
+  test('Unknown state and duration combination returns null', () {
+    final variant = defaultScenarioVariantForStateAndDuration(
+      stateTitle: 'Неизвестное состояние',
+      durationMinutes: 99,
+    );
+
+    expect(variant, isNull);
+  });
+
   test('Quick reset scenario exists', () {
     expect(quickResetScenario.stateTitle, 'Быстрый reset');
     expect(quickResetScenario.title, 'Быстрый reset');
