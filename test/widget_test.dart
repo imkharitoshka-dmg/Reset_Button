@@ -186,6 +186,93 @@ void main() {
     expect(find.text('Заметка: Стало легче.'), findsOneWidget);
   });
 
+  testWidgets('Shows history scenario variant title when variant id exists', (
+    tester,
+  ) async {
+    const storageService = ResetStorageService();
+
+    await storageService.saveResetSession(
+      ResetSession(
+        id: 'variant-session',
+        completedAt: DateTime(2026, 5, 17, 14, 30),
+        stateTitle: 'Я тревожусь',
+        scenarioTitle: 'Старое название',
+        durationMinutes: 3,
+        result: 'помогло',
+        scenarioVariantId: 'anxious-3-pause',
+      ),
+    );
+
+    await tester.pumpWidget(
+      const MaterialApp(home: HistoryPage(storageService: storageService)),
+    );
+    await tester.pump();
+
+    expect(find.text('Сценарий: 3 минуты паузы'), findsOneWidget);
+    expect(
+      find.text(
+        'Описание: Быстрый вариант через тело, пространство и один выбор.',
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('Старое название'), findsNothing);
+    expect(find.textContaining('anxious-3-pause'), findsNothing);
+  });
+
+  testWidgets('Shows old history session without scenario variant id', (
+    tester,
+  ) async {
+    const storageService = ResetStorageService();
+
+    await storageService.saveResetSession(
+      ResetSession(
+        id: 'old-session',
+        completedAt: DateTime(2026, 5, 17, 14, 30),
+        stateTitle: 'Тревога',
+        scenarioTitle: 'Сценарий из ранней версии',
+        durationMinutes: 3,
+        result: 'помогло',
+      ),
+    );
+
+    await tester.pumpWidget(
+      const MaterialApp(home: HistoryPage(storageService: storageService)),
+    );
+    await tester.pump();
+
+    expect(find.text('Сценарий: Сценарий из ранней версии'), findsOneWidget);
+    expect(find.text('Результат: помогло'), findsOneWidget);
+  });
+
+  testWidgets('Unknown scenario variant id does not break history', (
+    tester,
+  ) async {
+    const storageService = ResetStorageService();
+
+    await storageService.saveResetSession(
+      ResetSession(
+        id: 'unknown-variant-session',
+        completedAt: DateTime(2026, 5, 17, 14, 30),
+        stateTitle: 'Я тревожусь',
+        scenarioTitle: 'Сохранённый сценарий',
+        durationMinutes: 3,
+        result: 'не помогло',
+        scenarioVariantId: 'missing-variant-id',
+        note: 'Заметка осталась.',
+      ),
+    );
+
+    await tester.pumpWidget(
+      const MaterialApp(home: HistoryPage(storageService: storageService)),
+    );
+    await tester.pump();
+
+    expect(find.text('Сценарий: Сохранённый сценарий'), findsOneWidget);
+    expect(find.text('Результат: не помогло'), findsOneWidget);
+    expect(find.text('Заметка: Заметка осталась.'), findsOneWidget);
+    expect(find.textContaining('missing-variant-id'), findsNothing);
+  });
+
   testWidgets('Opens scenario progress screen and shows controls', (
     tester,
   ) async {

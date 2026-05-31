@@ -824,6 +824,22 @@ List<ResetScenario> scenariosForState(String stateTitle) {
       .toList();
 }
 
+ResetScenarioVariant? scenarioVariantById(String? scenarioVariantId) {
+  if (scenarioVariantId == null) {
+    return null;
+  }
+
+  for (final scenario in allResetScenarios) {
+    for (final variant in scenario.variants) {
+      if (variant.id == scenarioVariantId) {
+        return variant;
+      }
+    }
+  }
+
+  return null;
+}
+
 String scenarioStateTitleForUserState(String stateTitle) {
   return switch (stateTitle) {
     'Я устала' => 'Усталость',

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'formatters.dart';
+import 'reset_scenarios_data.dart';
 import 'reset_session.dart';
 import 'reset_storage_service.dart';
 
@@ -72,6 +73,9 @@ class HistorySessionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final note = session.note;
+    final scenarioVariant = scenarioVariantById(session.scenarioVariantId);
+    final scenarioTitle = scenarioVariant?.title ?? session.scenarioTitle;
+    final scenarioDescription = scenarioVariant?.shortDescription;
 
     return Card(
       child: Padding(
@@ -85,7 +89,9 @@ class HistorySessionCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             _HistoryValue(label: 'Состояние', value: session.state),
-            _HistoryValue(label: 'Сценарий', value: session.scenarioTitle),
+            _HistoryValue(label: 'Сценарий', value: scenarioTitle),
+            if (scenarioDescription != null && scenarioDescription.isNotEmpty)
+              _HistoryValue(label: 'Описание', value: scenarioDescription),
             _HistoryValue(label: 'Длительность', value: session.duration),
             _HistoryValue(label: 'Результат', value: session.result),
             if (note != null && note.isNotEmpty)
