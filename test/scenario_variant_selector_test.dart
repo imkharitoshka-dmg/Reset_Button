@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:reset_button/reset_scenario.dart';
+import 'package:reset_button/reset_scenarios_data.dart';
 import 'package:reset_button/reset_session.dart';
 import 'package:reset_button/scenario_variant_selector.dart';
 
@@ -182,6 +183,77 @@ void main() {
     );
 
     expect(selected.id, 'single_variant');
+  });
+
+  test('Quick reset cold start returns default variant', () {
+    final selected = selector.select(
+      scenario: quickResetScenario,
+      history: const [],
+      stateTitle: 'Быстрый reset',
+      durationMinutes: 3,
+    );
+
+    expect(selected.id, 'quick-reset-3-default');
+  });
+
+  test('Quick reset does not repeat last variant when alternatives exist', () {
+    final selected = selector.select(
+      scenario: quickResetScenario,
+      history: [
+        ResetSession(
+          id: 'quick-history',
+          completedAt: DateTime(2026, 5, 17, 12),
+          stateTitle: 'Быстрый reset',
+          scenarioTitle: 'Быстрый reset',
+          durationMinutes: 3,
+          result: 'помогло',
+          scenarioVariantId: 'quick-reset-3-default',
+        ),
+      ],
+      stateTitle: 'Быстрый reset',
+      durationMinutes: 3,
+    );
+
+    expect(selected.id, isNot('quick-reset-3-default'));
+  });
+
+  test('Quick reset ranking uses helped result and exploration', () {
+    final selected = selector.select(
+      scenario: quickResetScenario,
+      history: [
+        ResetSession(
+          id: 'quick-helped',
+          completedAt: DateTime(2026, 5, 17, 11),
+          stateTitle: 'Быстрый reset',
+          scenarioTitle: 'Быстрый reset через тело',
+          durationMinutes: 3,
+          result: 'помогло',
+          scenarioVariantId: 'quick-reset-3-body',
+        ),
+        ResetSession(
+          id: 'quick-not-helped',
+          completedAt: DateTime(2026, 5, 17, 10),
+          stateTitle: 'Быстрый reset',
+          scenarioTitle: 'Быстрый reset через порядок',
+          durationMinutes: 3,
+          result: 'не помогло',
+          scenarioVariantId: 'quick-reset-3-order',
+        ),
+        ResetSession(
+          id: 'quick-default',
+          completedAt: DateTime(2026, 5, 17, 12),
+          stateTitle: 'Быстрый reset',
+          scenarioTitle: 'Быстрый reset',
+          durationMinutes: 3,
+          result: 'частично',
+          scenarioVariantId: 'quick-reset-3-default',
+        ),
+      ],
+      stateTitle: 'Быстрый reset',
+      durationMinutes: 3,
+    );
+
+    expect(selected.id, 'quick-reset-3-body');
   });
 }
 

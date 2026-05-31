@@ -555,6 +555,75 @@ void main() {
     expect(find.text('Заметка: Стало чуть спокойнее.'), findsOneWidget);
   });
 
+  testWidgets('Quick reset flow rotates and saves scenario variant id', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(800, 1200));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+
+    const storageService = ResetStorageService();
+
+    await storageService.saveResetSession(
+      ResetSession(
+        id: 'previous-quick',
+        completedAt: DateTime(2026, 5, 17, 14),
+        stateTitle: 'Быстрый reset',
+        scenarioTitle: 'Быстрый reset',
+        durationMinutes: 3,
+        result: 'помогло',
+        scenarioVariantId: 'quick-reset-3-default',
+      ),
+    );
+
+    await tester.pumpWidget(
+      const MaterialApp(home: ResetHomePage(storageService: storageService)),
+    );
+    await tester.pump();
+
+    await tester.scrollUntilVisible(
+      find.text('Быстрый reset на 3 минуты'),
+      100,
+      scrollable: find.byType(Scrollable),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.widgetWithText(FilledButton, 'Быстрый reset на 3 минуты'),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Быстрый reset'), findsWidgets);
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Начать').first);
+    await tester.pumpAndSettle();
+
+    expect(
+      find.textContaining(
+        'Поставь стопы на пол и почувствуй опору',
+        skipOffstage: false,
+      ),
+      findsOneWidget,
+    );
+    expect(find.textContaining('quick-reset-3-default'), findsNothing);
+
+    await tester.tap(find.text('Завершить'));
+    await tester.pumpAndSettle();
+
+    final sessions = await storageService.loadResetSessions();
+    final savedSession = sessions.first;
+    expect(savedSession.stateTitle, 'Быстрый reset');
+    expect(savedSession.scenarioTitle, 'Быстрый reset через тело');
+    expect(savedSession.scenarioVariantId, 'quick-reset-3-body');
+
+    await tester.tap(find.byTooltip('История'));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('Сценарий: ${savedSession.scenarioTitle}'),
+      findsOneWidget,
+    );
+    expect(find.textContaining(savedSession.scenarioVariantId!), findsNothing);
+  });
+
   testWidgets('Variant routing is reflected in saved session and insights', (
     tester,
   ) async {

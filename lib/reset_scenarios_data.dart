@@ -78,16 +78,53 @@ const resetStateTitles = [
   'Мне нужно собраться перед встречей',
 ];
 
-const quickResetScenario = ResetScenario(
+const quickResetScenario = ResetScenario.withVariants(
   id: 'quick-reset-3',
   stateTitle: 'Быстрый reset',
-  title: 'Быстрый reset',
   durationMinutes: 3,
-  description: 'Короткий reset, чтобы быстро вернуться в устойчивое состояние.',
-  steps: [
-    'Поставь обе стопы на пол и выпрями спину.',
-    'Сделай три медленных вдоха и выдоха.',
-    'Назови одно действие, которое сделаешь следующим.',
+  defaultVariantId: 'quick-reset-3-default',
+  variants: [
+    ResetScenarioVariant(
+      id: 'quick-reset-3-default',
+      title: 'Быстрый reset',
+      shortDescription:
+          'Короткий reset, чтобы быстро вернуться в устойчивое состояние.',
+      stateTitle: 'Быстрый reset',
+      durationMinutes: 3,
+      checklistItems: [
+        'Поставь обе стопы на пол и выпрями спину.',
+        'Сделай три медленных вдоха и выдоха.',
+        'Назови одно действие, которое сделаешь следующим.',
+      ],
+    ),
+    ResetScenarioVariant(
+      id: 'quick-reset-3-body',
+      title: 'Быстрый reset через тело',
+      shortDescription:
+          'Короткая пауза, чтобы переключить внимание на опору и ближайшее действие.',
+      stateTitle: 'Быстрый reset',
+      durationMinutes: 3,
+      checklistItems: [
+        'Поставь стопы на пол и почувствуй опору.',
+        'Расслабь плечи и челюсть.',
+        'Посмотри вокруг и назови три предмета.',
+        'Выбери одно действие на ближайшие несколько минут.',
+      ],
+    ),
+    ResetScenarioVariant(
+      id: 'quick-reset-3-order',
+      title: 'Быстрый reset через порядок',
+      shortDescription:
+          'Мини-пауза, чтобы убрать лишнее и выбрать следующий шаг.',
+      stateTitle: 'Быстрый reset',
+      durationMinutes: 3,
+      checklistItems: [
+        'Убери один лишний раздражитель: вкладку, звук или предмет рядом.',
+        'Сделай один спокойный вдох и длинный выдох.',
+        'Сформулируй, что сейчас самое ближайшее.',
+        'Начни с одного маленького действия.',
+      ],
+    ),
   ],
 );
 

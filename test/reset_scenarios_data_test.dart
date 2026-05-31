@@ -343,6 +343,8 @@ void main() {
     expect(quickResetScenario.stateTitle, 'Быстрый reset');
     expect(quickResetScenario.title, 'Быстрый reset');
     expect(quickResetScenario.durationMinutes, 3);
+    expect(quickResetScenario.variants, hasLength(3));
+    expect(quickResetScenario.defaultVariant.id, 'quick-reset-3-default');
     expect(allResetScenarios, contains(quickResetScenario));
   });
 }
