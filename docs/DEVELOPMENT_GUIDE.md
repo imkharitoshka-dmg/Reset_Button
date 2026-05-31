@@ -27,3 +27,9 @@ flutter analyze
 flutter test
 flutter run -d emulator-5554
 ```
+
+## QA перед APK
+
+Перед финальной сборкой APK пройти чеклист:
+
+- [QA_CHECKLIST.md](QA_CHECKLIST.md)
