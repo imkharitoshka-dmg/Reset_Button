@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'formatters.dart';
+import 'history_insights.dart';
 import 'reset_scenarios_data.dart';
 import 'reset_session.dart';
 import 'reset_storage_service.dart';
@@ -38,6 +39,8 @@ class _HistoryPageState extends State<HistoryPage> {
 
   @override
   Widget build(BuildContext context) {
+    final insightsResult = const HistoryInsights().build(_resetSessions);
+
     return Scaffold(
       appBar: AppBar(title: const Text('История')),
       body: SafeArea(
@@ -53,14 +56,203 @@ class _HistoryPageState extends State<HistoryPage> {
               )
             : ListView.separated(
                 padding: const EdgeInsets.all(20),
-                itemCount: _resetSessions.length,
+                itemCount:
+                    _resetSessions.length + (insightsResult.isEmpty ? 0 : 1),
                 separatorBuilder: (context, index) =>
                     const SizedBox(height: 12),
                 itemBuilder: (context, index) {
-                  return HistorySessionCard(session: _resetSessions[index]);
+                  if (!insightsResult.isEmpty && index == 0) {
+                    return HistoryInsightsCard(result: insightsResult);
+                  }
+
+                  final sessionIndex = insightsResult.isEmpty
+                      ? index
+                      : index - 1;
+                  return HistorySessionCard(
+                    session: _resetSessions[sessionIndex],
+                  );
                 },
               ),
       ),
+    );
+  }
+}
+
+class HistoryInsightsCard extends StatelessWidget {
+  const HistoryInsightsCard({super.key, required this.result});
+
+  final HistoryInsightsResult result;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => _showHistoryInsightsSheet(context, result),
+        child: Padding(
+          padding: const EdgeInsets.all(18),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Что чаще помогало',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  const Text('Подробнее'),
+                  const SizedBox(width: 4),
+                  const Icon(Icons.chevron_right, size: 20),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+void _showHistoryInsightsSheet(
+  BuildContext context,
+  HistoryInsightsResult result,
+) {
+  showModalBottomSheet<void>(
+    context: context,
+    showDragHandle: true,
+    builder: (context) {
+      return SafeArea(
+        child: ListView.separated(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+          shrinkWrap: true,
+          itemCount: result.topStates.length + 2,
+          separatorBuilder: (context, index) => const SizedBox(height: 12),
+          itemBuilder: (context, index) {
+            if (index == 0) {
+              return Text(
+                'Что помогало чаще',
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+              );
+            }
+            if (index == 1) {
+              return const Text('Чаще всего reset использовался для:');
+            }
+
+            final insight = result.topStates[index - 2];
+            return HistoryStateInsightTile(insight: insight);
+          },
+        ),
+      );
+    },
+  );
+}
+
+class HistoryStateInsightTile extends StatelessWidget {
+  const HistoryStateInsightTile({super.key, required this.insight});
+
+  final HistoryStateInsight insight;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      title: Text('${insight.stateTitle} — ${_formatTimes(insight.total)}'),
+      trailing: const Icon(Icons.chevron_right),
+      onTap: () => _showStateInsightSheet(context, insight),
+    );
+  }
+}
+
+String _formatTimes(int value) {
+  if (value % 10 == 1 && value % 100 != 11) {
+    return '$value раз';
+  }
+
+  if (value % 10 >= 2 &&
+      value % 10 <= 4 &&
+      (value % 100 < 12 || value % 100 > 14)) {
+    return '$value раза';
+  }
+
+  return '$value раз';
+}
+
+void _showStateInsightSheet(BuildContext context, HistoryStateInsight insight) {
+  final hasScenarioDetails = insight.scenarioDetails.isNotEmpty;
+
+  showModalBottomSheet<void>(
+    context: context,
+    showDragHandle: true,
+    builder: (context) {
+      return SafeArea(
+        child: ListView.separated(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+          shrinkWrap: true,
+          itemCount: hasScenarioDetails
+              ? insight.scenarioDetails.length + 2
+              : 3,
+          separatorBuilder: (context, index) => const SizedBox(height: 12),
+          itemBuilder: (context, index) {
+            if (index == 0) {
+              return Text(
+                insight.stateTitle,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+              );
+            }
+            if (index == 1) {
+              return const Text('Сценарии, которые чаще помогали');
+            }
+            if (!hasScenarioDetails) {
+              return const Text(
+                'Пока нет данных по конкретным сценариям. Новые reset-сессии будут сохраняться с детализацией.',
+              );
+            }
+
+            return HistoryScenarioInsightTile(
+              insight: insight.scenarioDetails[index - 2],
+            );
+          },
+        ),
+      );
+    },
+  );
+}
+
+class HistoryScenarioInsightTile extends StatelessWidget {
+  const HistoryScenarioInsightTile({super.key, required this.insight});
+
+  final HistoryScenarioInsight insight;
+
+  @override
+  Widget build(BuildContext context) {
+    final shortDescription = insight.shortDescription;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          insight.title,
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+        ),
+        if (shortDescription != null && shortDescription.isNotEmpty) ...[
+          const SizedBox(height: 4),
+          Text(shortDescription),
+        ],
+        const SizedBox(height: 4),
+        Text(
+          'помогло: ${insight.helped} · частично: ${insight.partially} · не помогло: ${insight.notHelped}',
+        ),
+      ],
     );
   }
 }

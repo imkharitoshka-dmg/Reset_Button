@@ -150,6 +150,7 @@ void main() {
       find.text('История пока пустая. Выбери состояние и пройди первый сброс.'),
       findsOneWidget,
     );
+    expect(find.text('Что чаще помогало'), findsNothing);
   });
 
   testWidgets('Renders history screen', (tester) async {
@@ -184,6 +185,185 @@ void main() {
     expect(find.text('Сценарий: Дыхание'), findsOneWidget);
     expect(find.text('Результат: частично'), findsOneWidget);
     expect(find.text('Заметка: Стало легче.'), findsOneWidget);
+  });
+
+  testWidgets('Does not show history insights before five sessions', (
+    tester,
+  ) async {
+    const storageService = ResetStorageService();
+
+    await _saveHistorySessions(storageService, 4);
+
+    await tester.pumpWidget(
+      const MaterialApp(home: HistoryPage(storageService: storageService)),
+    );
+    await tester.pump();
+
+    expect(find.text('Что чаще помогало'), findsNothing);
+  });
+
+  testWidgets('Shows history insights after five sessions', (tester) async {
+    const storageService = ResetStorageService();
+
+    await _saveHistorySessions(storageService, 5);
+
+    await tester.pumpWidget(
+      const MaterialApp(home: HistoryPage(storageService: storageService)),
+    );
+    await tester.pump();
+
+    expect(find.text('Что чаще помогало'), findsOneWidget);
+    expect(find.text('Подробнее'), findsOneWidget);
+    expect(find.text('Посмотреть статистику'), findsNothing);
+    expect(find.textContaining('Для «'), findsNothing);
+    expect(find.textContaining('3 минуты паузы'), findsNothing);
+    expect(find.textContaining('помогло: 3'), findsNothing);
+    expect(find.textContaining('anxious-3-pause'), findsNothing);
+  });
+
+  testWidgets('Opens detailed history insights by tapping compact block', (
+    tester,
+  ) async {
+    const storageService = ResetStorageService();
+
+    await _saveHistorySessions(storageService, 5);
+
+    await tester.pumpWidget(
+      const MaterialApp(home: HistoryPage(storageService: storageService)),
+    );
+    await tester.pump();
+
+    await tester.tap(find.text('Что чаще помогало'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Что помогало чаще'), findsOneWidget);
+    expect(find.text('Чаще всего reset использовался для:'), findsOneWidget);
+    expect(find.text('Я тревожусь — 3 раза'), findsOneWidget);
+    expect(find.text('Усталость — 2 раза'), findsOneWidget);
+    expect(find.textContaining('3 минуты паузы'), findsNothing);
+    expect(find.textContaining('помогло:'), findsNothing);
+    expect(find.textContaining('anxious-3-pause'), findsNothing);
+  });
+
+  testWidgets('Opens scenario details after tapping history insight state', (
+    tester,
+  ) async {
+    const storageService = ResetStorageService();
+
+    await _saveHistorySessions(storageService, 5);
+
+    await tester.pumpWidget(
+      const MaterialApp(home: HistoryPage(storageService: storageService)),
+    );
+    await tester.pump();
+
+    await tester.tap(find.text('Что чаще помогало'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Я тревожусь — 3 раза'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Сценарии, которые чаще помогали'), findsOneWidget);
+    expect(find.text('3 минуты паузы'), findsOneWidget);
+    expect(
+      find.text('помогло: 2 · частично: 0 · не помогло: 0'),
+      findsOneWidget,
+    );
+    expect(find.textContaining('anxious-3-pause'), findsNothing);
+  });
+
+  testWidgets('Shows partial-only scenario in state detail', (tester) async {
+    const storageService = ResetStorageService();
+
+    await storageService.saveResetSession(
+      ResetSession(
+        id: 'partial-1',
+        completedAt: DateTime(2026, 5, 17, 14),
+        stateTitle: 'Я тревожусь',
+        scenarioTitle: 'Сценарий',
+        durationMinutes: 3,
+        result: 'частично',
+        scenarioVariantId: 'anxious-3-pause',
+      ),
+    );
+    await _saveHistorySessions(storageService, 4);
+
+    await tester.pumpWidget(
+      const MaterialApp(home: HistoryPage(storageService: storageService)),
+    );
+    await tester.pump();
+
+    await tester.tap(find.text('Что чаще помогало'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Я тревожусь — 4 раза'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('3 минуты паузы'), findsOneWidget);
+    expect(
+      find.text('помогло: 2 · частично: 1 · не помогло: 0'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('Shows fallback when state has no scenario details', (
+    tester,
+  ) async {
+    const storageService = ResetStorageService();
+
+    await _saveHistorySessionsWithoutVariants(storageService, 5);
+
+    await tester.pumpWidget(
+      const MaterialApp(home: HistoryPage(storageService: storageService)),
+    );
+    await tester.pump();
+
+    await tester.tap(find.text('Что чаще помогало'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Я тревожусь — 3 раза'));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text(
+        'Пока нет данных по конкретным сценариям. Новые reset-сессии будут сохраняться с детализацией.',
+      ),
+      findsOneWidget,
+    );
+    expect(find.textContaining('anxious-3-pause'), findsNothing);
+  });
+
+  testWidgets('History insights normalize old state titles', (tester) async {
+    const storageService = ResetStorageService();
+
+    await storageService.saveResetSession(
+      ResetSession(
+        id: 'old-tired-1',
+        completedAt: DateTime(2026, 5, 17, 14),
+        stateTitle: 'Я устала',
+        scenarioTitle: 'Старый сценарий',
+        durationMinutes: 3,
+        result: 'помогло',
+      ),
+    );
+    await storageService.saveResetSession(
+      ResetSession(
+        id: 'old-tired-2',
+        completedAt: DateTime(2026, 5, 17, 15),
+        stateTitle: 'Я устала',
+        scenarioTitle: 'Старый сценарий',
+        durationMinutes: 3,
+        result: 'частично',
+      ),
+    );
+    await _saveHistorySessions(storageService, 3);
+
+    await tester.pumpWidget(
+      const MaterialApp(home: HistoryPage(storageService: storageService)),
+    );
+    await tester.pump();
+
+    await tester.tap(find.text('Что чаще помогало'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Усталость — 2 раза'), findsOneWidget);
   });
 
   testWidgets('Shows history scenario variant title when variant id exists', (
@@ -374,4 +554,41 @@ void main() {
     expect(find.text('Результат: частично'), findsOneWidget);
     expect(find.text('Заметка: Стало чуть спокойнее.'), findsOneWidget);
   });
+}
+
+Future<void> _saveHistorySessions(
+  ResetStorageService storageService,
+  int count,
+) async {
+  for (var index = 0; index < count; index++) {
+    await storageService.saveResetSession(
+      ResetSession(
+        id: 'history-$index',
+        completedAt: DateTime(2026, 5, 17, 14, index),
+        stateTitle: index < 3 ? 'Я тревожусь' : 'Усталость',
+        scenarioTitle: 'Сценарий',
+        durationMinutes: 3,
+        result: index < 4 ? 'помогло' : 'частично',
+        scenarioVariantId: index < 2 ? 'anxious-3-pause' : null,
+      ),
+    );
+  }
+}
+
+Future<void> _saveHistorySessionsWithoutVariants(
+  ResetStorageService storageService,
+  int count,
+) async {
+  for (var index = 0; index < count; index++) {
+    await storageService.saveResetSession(
+      ResetSession(
+        id: 'legacy-history-$index',
+        completedAt: DateTime(2026, 5, 17, 15, index),
+        stateTitle: index < 3 ? 'Я тревожусь' : 'Усталость',
+        scenarioTitle: 'Сценарий из ранней версии',
+        durationMinutes: 3,
+        result: index < 2 ? 'помогло' : 'частично',
+      ),
+    );
+  }
 }
