@@ -554,6 +554,103 @@ void main() {
     expect(find.text('Результат: частично'), findsOneWidget);
     expect(find.text('Заметка: Стало чуть спокойнее.'), findsOneWidget);
   });
+
+  testWidgets('Variant routing is reflected in saved session and insights', (
+    tester,
+  ) async {
+    const storageService = ResetStorageService();
+
+    await storageService.saveResetSession(
+      ResetSession(
+        id: 'previous-anxious-default',
+        completedAt: DateTime(2026, 5, 17, 14),
+        stateTitle: 'Я тревожусь',
+        scenarioTitle: '3 минуты: заземлиться',
+        durationMinutes: 3,
+        result: 'помогло',
+        scenarioVariantId: 'anxious-3-default',
+      ),
+    );
+    await storageService.saveResetSession(
+      ResetSession(
+        id: 'previous-tired',
+        completedAt: DateTime(2026, 5, 17, 15),
+        stateTitle: 'Усталость',
+        scenarioTitle: '3 минуты восстановления',
+        durationMinutes: 3,
+        result: 'частично',
+        scenarioVariantId: 'tired-3-default',
+      ),
+    );
+    await storageService.saveResetSession(
+      ResetSession(
+        id: 'previous-focus',
+        completedAt: DateTime(2026, 5, 17, 16),
+        stateTitle: 'Я не могу сфокусироваться',
+        scenarioTitle: '3 минуты: выбрать одну точку внимания',
+        durationMinutes: 3,
+        result: 'не помогло',
+        scenarioVariantId: 'unfocused-3-default',
+      ),
+    );
+    await storageService.saveResetSession(
+      ResetSession(
+        id: 'previous-chaos',
+        completedAt: DateTime(2026, 5, 17, 17),
+        stateTitle: 'У меня хаос в голове',
+        scenarioTitle: '3 минуты: навести ясность',
+        durationMinutes: 3,
+        result: 'помогло',
+        scenarioVariantId: 'mental-chaos-3-default',
+      ),
+    );
+
+    await tester.pumpWidget(
+      const MaterialApp(home: ResetHomePage(storageService: storageService)),
+    );
+    await tester.pump();
+
+    await tester.tap(find.text('Успокоиться'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Я тревожусь'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Начать').first);
+    await tester.pumpAndSettle();
+
+    expect(find.text('3 минуты паузы'), findsWidgets);
+    expect(find.textContaining('anxious-3-pause'), findsNothing);
+
+    await tester.scrollUntilVisible(
+      find.text('Завершить'),
+      100,
+      scrollable: find.byType(Scrollable).last,
+    );
+    await tester.tap(find.text('Завершить'));
+    await tester.pumpAndSettle();
+
+    final sessions = await storageService.loadResetSessions();
+    final savedSession = sessions.first;
+    expect(savedSession.stateTitle, 'Я тревожусь');
+    expect(savedSession.scenarioTitle, '3 минуты паузы');
+    expect(savedSession.scenarioVariantId, 'anxious-3-pause');
+
+    await tester.tap(find.byTooltip('История'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Сценарий: 3 минуты паузы'), findsOneWidget);
+    expect(find.text('Что чаще помогало'), findsOneWidget);
+    expect(find.textContaining('anxious-3-pause'), findsNothing);
+
+    await tester.tap(find.text('Что чаще помогало'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Я тревожусь — 2 раза'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Сценарии, которые чаще помогали'), findsOneWidget);
+    expect(find.text('3 минуты паузы'), findsOneWidget);
+    expect(find.text('помогло: 1 · частично: 0 · не помогло: 0'), findsWidgets);
+    expect(find.textContaining('anxious-3-pause'), findsNothing);
+  });
 }
 
 Future<void> _saveHistorySessions(
